@@ -1,0 +1,34 @@
+# <long>;<short>;[<param>];<group>;<description>
+;;;io;I/O options
+input_format;i;format;io;Set input format for strings.
+decode_str;1000;;io;Enable URI-decoding of strings.
+reverse_str;1001;;io;Reverse (flip) all strings.
+stoptoken_file;1002;file;io;Provide a file with stop tokens.
+soundex;1003;;io;Enable soundex encoding of tokens.
+benchmark;1004;num;io;Perform benchmark for given seconds.
+output_format;o;format;io;Set output format for matrix.
+precision;p;num;io;Set precision of output.
+compress;z;;io;Enable zlib compression of output.
+save_indices;1005;;io;Save indices of strings.
+save_labels;1006;;io;Save labels of strings.
+save_sources;1007;;io;Save sources of strings.
+;;;meas;Measure options
+measure;m;name;meas;Set similarity measure.
+granularity;g;type;meas;Set granularity: bytes, bits, tokens.
+token_delim;d;chars;meas;Set delimiters for tokens.
+num_threads;n;num;meas;Set number of threads.
+cache_size;a;num;meas;Set size of cache in megabytes.
+global_cache;G;;meas;Enable global cache.
+col_range;x;start:end;meas;Set the column range (x) of strings.
+row_range;y;start:end;meas;Set the row range (y) of strings.
+split;s;blocks:id;meas;Split matrix into blocks and compute one.
+;;;gen;Generic options
+config_file;c;file;gen;Set configuration file.
+verbose;v;;gen;Increase verbosity.
+log_line;l;;gen;Print a log line every minutes.
+quiet;q;;gen;Be quiet during processing.
+print_measures;M;;gen;Print list of similarity measures.
+print_config;C;;gen;Print the current configuration.
+print_defaults;D;;gen;Print the default configuration.
+version;V;;gen;Print version and copyright.
+help;h;;gen;Print help screen.

@@ -1,0 +1,64 @@
+<project
+    name = "harry"
+    description = "Harry - A Tool for Measuring String Similarity"
+    script = "zproject.gsl"
+    email = "konrad@mlsec.org"
+    license = "GPL"
+    url = "http://mlsec.org/harry"
+    repository = "https://github.com/rieck/harry"
+    >
+    <include filename = "license.xml" />
+    <version major = "0" minor = "4" patch = "3" />
+    <target name = "autotools" />
+
+    <use project = "czmq" />
+    <use project = "libconfig" prefix = "config" header = "libconfig.h"
+        repository = "https://github.com/hyperrealm/libconfig"
+        min_major= "1" min_minor = "4" min_patch = "0"
+        test = "config_init">
+    </use>
+    <use project = "zlib"
+        repository = "https://github.com/madler/zlib"
+        test = "zlibVersion">
+    </use>
+    <use project = "libarchive" prefix = "archive"
+        repository = "https://github.com/libarchive/libarchive"
+        test = "archive_read_new" optional = "1">
+    </use>
+    <use project = "math" linkname = "m" prefix = "m"
+        header = "math.h" repository = ""
+        test = "cos">
+    </use>
+
+    <!-- These are private classes - order is important! -->
+    <class name = "md5" private = "1" />
+    <class name = "murmur" private = "1" />
+    <class name = "rwlock" private = "1" />
+    <class name = "util" private = "0" />
+    <class name = "vcache" private = "1" />
+    <class name = "hstring" private = "0" />
+    <class name = "hmatrix" private = "1" />
+    <class name = "hconfig" private = "1" />
+
+    <!-- These are private classes -->
+    <class name = "kern_distance" private = "1" />
+    <class name = "kern_subsequence" private = "1" />
+    <class name = "kern_spectrum" private = "1" />
+    <class name = "kern_wdegree" private = "1" />
+    <class name = "dist_bag" private = "1" />
+    <class name = "dist_compression" private = "1" />
+    <class name = "dist_damerau" private = "1" />
+    <class name = "dist_hamming" private = "1" />
+    <class name = "dist_jarowinkler" private = "1" />
+    <class name = "dist_kernel" private = "1" />
+    <class name = "dist_lee" private = "1" />
+    <class name = "dist_levenshtein" private = "1" />
+    <class name = "dist_osa" private = "1" />
+    <class name = "norm" private = "0" />
+    <class name = "sim_coefficient" private = "1" />
+
+    <!-- These are public classes -->
+    <class name = "measures" private = "0" />
+
+</project>
+

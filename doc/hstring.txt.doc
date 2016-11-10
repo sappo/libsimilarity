@@ -1,0 +1,14 @@
+#### hstring.txt - no title found
+
+Please add @header section in ../src/hstring.c.
+
+Please add @discuss section in ../src/hstring.c.
+
+This is the class interface:
+
+Please add @interface section in ../include/hstring.h.
+
+This is the class self test code:
+
+Please add @selftest section in ../src/hstring.c.
+

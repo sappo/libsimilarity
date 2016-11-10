@@ -1,0 +1,26 @@
+hstring(3)
+==========
+
+NAME
+----
+hstring.txt - no title found
+
+SYNOPSIS
+--------
+----
+Please add @interface section in ../include/hstring.h.
+----
+
+DESCRIPTION
+-----------
+
+Please add @header section in ../src/hstring.c.
+
+Please add @discuss section in ../src/hstring.c.
+
+EXAMPLE
+-------
+.From hstring_test method
+----
+Please add @selftest section in ../src/hstring.c.
+----

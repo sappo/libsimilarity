@@ -1,0 +1,25 @@
+Name(7)
+=======
+
+
+NAME
+----
+harry - Harry - A Tool for Measuring String Similarity
+
+
+SYNOPSIS
+--------
+----
+#include <harry.h>
+
+cc ['flags'] 'files' -lharry ['libraries']
+----
+
+
+DESCRIPTION
+-----------
+
+Classes
+~~~~~~~
+
+Something.

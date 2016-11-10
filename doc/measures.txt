@@ -1,0 +1,26 @@
+measures(3)
+===========
+
+NAME
+----
+measures - no title found
+
+SYNOPSIS
+--------
+----
+Please add @interface section in ../include/measures.h.
+----
+
+DESCRIPTION
+-----------
+
+Please add @header section in ../src/measures.c.
+
+Please add @discuss section in ../src/measures.c.
+
+EXAMPLE
+-------
+.From measures_test method
+----
+Please add @selftest section in ../src/measures.c.
+----
