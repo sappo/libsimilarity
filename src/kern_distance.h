@@ -19,6 +19,6 @@ typedef enum
 
 /* Module interface */
 void kern_distance_config(measures_t *);
-float kern_distance_compare(measures_t *, hstring_t, hstring_t);
+float kern_distance_compare(measures_t *, hstring_t *, hstring_t *);
 
 #endif /* KERN_DISTANCE_H */

@@ -40,13 +40,14 @@ void dist_compression_config()
  * @param x String x
  * @return length of the compressed data
  */
-static float compress_str1(hstring_t x)
+static float
+compress_str1 (hstring_t *x)
 {
     unsigned long tmp, width;
     unsigned char *dst;
 
-    width = x.type == TYPE_TOKEN ? sizeof(sym_t) : sizeof(char);
-    tmp = compressBound(x.len * width);
+    width = x->type == HSTRING_TYPE_TOKEN ? sizeof(sym_t) : sizeof(char);
+    tmp = compressBound(x->len * width);
 
     dst = (unsigned char *) zmalloc(tmp);
     if (!dst) {
@@ -54,7 +55,7 @@ static float compress_str1(hstring_t x)
         return -1;
     }
 
-    compress2(dst, &tmp, (const Bytef *) x.str.c, x.len * width, level);
+    compress2(dst, &tmp, (const Bytef *) x->str.c, x->len * width, level);
 
     free(dst);
     return (float) tmp;
@@ -66,15 +67,16 @@ static float compress_str1(hstring_t x)
  * @param y String y
  * @return length of the compressed data.
  */
-static float compress_str2(hstring_t x, hstring_t y)
+static float
+compress_str2 (hstring_t *x, hstring_t *y)
 {
     unsigned long tmp, width;
     unsigned char *src, *dst;
 
-    assert(x.type == y.type);
+    assert(x->type == y->type);
 
-    width = x.type == TYPE_TOKEN ? sizeof(sym_t) : sizeof(char);
-    tmp = compressBound((x.len + y.len) * width);
+    width = x->type == HSTRING_TYPE_TOKEN ? sizeof(sym_t) : sizeof(char);
+    tmp = compressBound((x->len + y->len) * width);
 
     dst = (unsigned char *) zmalloc(tmp);
     src = (unsigned char *) zmalloc(tmp);
@@ -84,10 +86,10 @@ static float compress_str2(hstring_t x, hstring_t y)
     }
 
     /* Concatenate sequences y and x */
-    memcpy(src, y.str.s, y.len * width);
-    memcpy(src + y.len * width, x.str.s, x.len * width);
+    memcpy(src, y->str.s, y->len * width);
+    memcpy(src + y->len * width, x->str.s, x->len * width);
 
-    compress2(dst, &tmp, src, (x.len + y.len) * width, level);
+    compress2(dst, &tmp, src, (x->len + y->len) * width, level);
 
     free(dst);
     free(src);
@@ -102,7 +104,7 @@ static float compress_str2(hstring_t x, hstring_t y)
  * @param y second string
  * @return Compression distance
  */
-float dist_compression_compare(measures_t *self, hstring_t x, hstring_t y)
+float dist_compression_compare (measures_t *self, hstring_t *x, hstring_t *y)
 {
     float xl, yl, xyl, yxl;
     uint64_t xk, yk, xyk, yxk;

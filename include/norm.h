@@ -22,7 +22,7 @@ typedef enum
 } lnorm_t;
 
 lnorm_t lnorm_get(const char *str);
-float lnorm(lnorm_t n, float d, hstring_t x, hstring_t y);
+float lnorm(lnorm_t n, float d, hstring_t *x, hstring_t *y);
 
 /* Kernel normalizations */
 typedef enum
@@ -32,8 +32,8 @@ typedef enum
 } knorm_t;
 
 knorm_t knorm_get(const char *str);
-float knorm(measures_t *m, float k, hstring_t x, hstring_t y,
-            float (*kernel) (measures_t *, hstring_t, hstring_t));
+float knorm(measures_t *self, float k, hstring_t *x, hstring_t *y,
+            float (*kernel) (measures_t *, hstring_t *, hstring_t *));
 
 void
     norm_test (bool verbose);

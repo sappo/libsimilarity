@@ -79,13 +79,13 @@ void kern_distance_config(measures_t *self)
  * @param y String y
  * @return inner product (dot)
  */
-static float dot(measures_t *self, hstring_t x, hstring_t y)
+static float dot(measures_t *self, hstring_t *x, hstring_t *y)
 {
-    hstring_t o;
+    hstring_t *o;
     uint64_t xk, yk;
     float d1, d2, d3;
 
-    o = hstring_empty(o, x.type);
+    o = hstring_empty (x->type);
 
     xk = hstring_hash1(x);
     if (!vcache_load(xk, &d1, ID_KERN_DISTANCE)) {
@@ -110,7 +110,8 @@ static float dot(measures_t *self, hstring_t x, hstring_t y)
  * @param y second string
  * @return distance substitution kernel
  */
-static float kernel(measures_t *self, hstring_t x, hstring_t y)
+static float
+kernel (measures_t *self, hstring_t *x, hstring_t *y)
 {
     float d, k = 0;
 
@@ -141,7 +142,7 @@ static float kernel(measures_t *self, hstring_t x, hstring_t y)
  * @param y second string
  * @return distance substitution kernel
  */
-float kern_distance_compare(measures_t *self, hstring_t x, hstring_t y)
+float kern_distance_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     assert (self);
     float k = kernel(self, x, y);

@@ -209,7 +209,7 @@ measure_fprint (FILE *f)
  * @return similarity/dissimilarity value
  */
 double
-measure_compare(measures_t *self, hstring_t x, hstring_t y)
+measure_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     if (!self->global_cache)
         return self->func->measure_compare(self, x, y);

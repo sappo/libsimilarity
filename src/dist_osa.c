@@ -50,7 +50,7 @@ void dist_osa_config()
 }
 
 /* Ugly macros to access arrays */
-#define D(i,j) 		d[(i) * (y.len + 1) + (j)]
+#define D(i,j) 		d[(i) * (y->len + 1) + (j)]
 
 /**
  * Computes the OSA distance of two strings.
@@ -58,24 +58,24 @@ void dist_osa_config()
  * @param y second string
  * @return OSA distance
  */
-float dist_osa_compare(measures_t *self, hstring_t x, hstring_t y)
+float dist_osa_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     int i, j, a, b, c;
 
-    if (x.len == 0 && y.len == 0)
+    if (x->len == 0 && y->len == 0)
         return 0;
 
     /* Allocate matrix. We might reduce this to some rows only */
-    int *d = (int *) calloc((x.len + 1) * (y.len + 1), sizeof(int));
+    int *d = (int *) calloc((x->len + 1) * (y->len + 1), sizeof(int));
 
     /* Init margin of matrix */
-    for (i = 0; i <= x.len; i++)
+    for (i = 0; i <= x->len; i++)
         D(i, 0) = i * cost_ins;
-    for (j = 0; j <= y.len; j++)
+    for (j = 0; j <= y->len; j++)
         D(0, j) = j * cost_ins;
 
-    for (i = 1; i <= x.len; i++) {
-        for (j = 1; j <= y.len; j++) {
+    for (i = 1; i <= x->len; i++) {
+        for (j = 1; j <= y->len; j++) {
 
             /* Comparison */
             c = hstring_compare(x, i - 1, y, j - 1);
@@ -105,7 +105,7 @@ float dist_osa_compare(measures_t *self, hstring_t x, hstring_t y)
         }
     }
 
-    double m = D(x.len, y.len);
+    double m = D(x->len, y->len);
     free(d);
 
     return lnorm(n, m, x, y);

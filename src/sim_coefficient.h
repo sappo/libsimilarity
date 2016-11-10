@@ -22,24 +22,24 @@ typedef struct
 void sim_coefficient_config();
 
 #define sim_jaccard_config sim_coefficient_config
-float sim_jaccard_compare(measures_t *, hstring_t x, hstring_t y);
+float sim_jaccard_compare(measures_t *, hstring_t *x, hstring_t *y);
 
 #define sim_simpson_config sim_coefficient_config
-float sim_simpson_compare(measures_t *, hstring_t x, hstring_t y);
+float sim_simpson_compare(measures_t *, hstring_t *x, hstring_t *y);
 
 #define sim_braun_config sim_coefficient_config
-float sim_braun_compare(measures_t *, hstring_t x, hstring_t y);
+float sim_braun_compare(measures_t *, hstring_t *x, hstring_t *y);
 
 #define sim_dice_config sim_coefficient_config
-float sim_dice_compare(measures_t *, hstring_t x, hstring_t y);
+float sim_dice_compare(measures_t *, hstring_t *x, hstring_t *y);
 
 #define sim_sokal_config sim_coefficient_config
-float sim_sokal_compare(measures_t *, hstring_t x, hstring_t y);
+float sim_sokal_compare(measures_t *, hstring_t *x, hstring_t *y);
 
 #define sim_kulczynski_config sim_coefficient_config
-float sim_kulczynski_compare(measures_t *, hstring_t x, hstring_t y);
+float sim_kulczynski_compare(measures_t *, hstring_t *x, hstring_t *y);
 
 #define sim_otsuka_config sim_coefficient_config
-float sim_otsuka_compare(measures_t *, hstring_t x, hstring_t y);
+float sim_otsuka_compare(measures_t *, hstring_t *x, hstring_t *y);
 
 #endif /* SIM_COEFFICIENTS_H */

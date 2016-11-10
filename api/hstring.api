@@ -1,0 +1,128 @@
+<class name = "hstring">
+    <!--
+    Copyright (C) 2013-2015 Konrad Rieck (konrad@mlsec.org)
+
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation; either version 3 of the License, or (at your
+    option) any later version.  This program is distributed without any
+    warranty. See the GNU General Public License for more details.
+    -->
+    String object with functions for processing strings and sequences
+
+    <constant name = "delim not init" value = "42">Placeholder for non-initialized delimiters</constant>
+    <constant name = "type byte" value = "0x00">String type Byte</constant>
+    <constant name = "type token" value = "0x01">String type Token</constant>
+    <constant name = "type bit" value = "0x02">String type Bit</constant>
+
+    <constructor>
+        Converts a c-style string into a string object.
+        <argument name = "str" type = "string" />
+    </constructor>
+
+    <constructor name = "empty">
+        Creates an empty string object.
+        <argument name = "type" type = "integer" />
+    </constructor>
+
+    <destructor>
+        Destroy the string object.
+    </destructor>
+
+    <method name = "delim set" singleton = "1">
+        Decodes a string containing delimiters into a lookup table.
+        <argument name = "str" type = "string" />
+    </method>
+
+    <method name = "has delim" singleton = "1">
+        Check whether delimiters have been set. Returns true if delimiters have
+        been set, otherwise false.
+        <return type = "integer" />
+    </method>
+
+    <method name = "delim reset" singleton = "1">
+        Resets delimiters table. There is a global table of delimiter symbols
+        which is only initialized once the first sequence is processed. This
+        functions is used to trigger a re-initialization.
+    </method>
+
+    <method name = "preproc">
+        <argument name = "measure" type = "measures" />
+    </method>
+
+    <method name = "tokenify">
+        Converts a string into a sequence of tokens using delimiter characters.
+        The original character string is lost. Returns 0 if successful,
+        otherwise -1.
+        <return type = "integer" />
+    </method>
+
+    <method name = "bitify">
+        Converts a string into a sequence of bits. Well, actually there is no
+        conversion except for that the counting now happens on the level of
+        bits instead of bytes.
+    </method>
+
+    <method name = "hash sub">
+        Computes a 64-bit hash for a substring. Collisions are possible but not
+        very likely (hopefully). Returns 64-bit hash.
+        <argument name = "start" type = "integer" />
+        <argument name = "len" type = "integer" />
+        <return type = "number" size = "8" />
+    </method>
+
+    <method name = "hash1">
+        Computes a 64-bit hash for a string. The hash is used at different
+        locations.  Collisions are possible but not very likely (hopefully).
+        Returns 64-bit hash.
+        <return type = "number" size = "8" />
+    </method>
+
+    <method name = "hash2" singleton = "1">
+        Computes a 64-bit hash for two strings. The computation is symmetric,
+        that is, the same strings retrieve the same hash independent of their
+        order.  Collisions are possible but not very likely (hopefully). Return
+        64-bit hash.
+        <argument name = "x" type = "hstring" />
+        <argument name = "y" type = "hstring" />
+        <return type = "number" size = "8" />
+    </method>
+
+    <method name = "get">
+        Returns symbol/character at given position.
+        <argument name = "pos" type = "integer" />
+        <return type = "number" size = "8" />
+    </method>
+
+    <method name = "soundex">
+        Perform a soundex transformation of each token.
+
+        Soundex code as implemented by Kevin Setter, 8/27/97 with some slight
+        modifications. Known bugs: Consonants separated by a vowel are treated
+        as one character, if they have the same index. This is wrong. :(
+    </method>
+
+    <method name = "compare" singleton = "1">
+        Compares two symbols/characters. Returns 0 if equal, < 0 if x smaller,
+        > 0 if y smaller
+        <argument name = "x" type = "hstring" />
+        <argument name = "posx" type = "integer" />
+        <argument name = "y" type = "hstring" />
+        <argument name = "posy" type = "integer" />
+        <return type = "integer" />
+    </method>
+
+    <method name = "print">
+        Print string object
+    </method>
+
+    <method name = "stoptokens load">
+        Reads stop tokens from file and hash them.
+        <argument name = "filename" type = "string" />
+    </method>
+
+    <method name = "stoptokens destroy">
+        Destroys stop tokens table.
+    </method>
+
+</class>

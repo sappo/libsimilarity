@@ -14,6 +14,6 @@
 
 /* Module interface */
 void dist_bag_config();
-float dist_bag_compare(measures_t *, hstring_t, hstring_t);
+float dist_bag_compare(measures_t *, hstring_t *, hstring_t *);
 
 #endif /* DIST_BAG_H */

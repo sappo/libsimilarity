@@ -25,7 +25,7 @@
  * Initializes the similarity measure
  */
 void
-dist_levenshtein_config(measures_t *self)
+dist_levenshtein_config (measures_t *self)
 {
     assert (self);
     const char *str;
@@ -59,63 +59,63 @@ dist_levenshtein_config(measures_t *self)
  * @return Levenshtein distance
  */
 static float
-dist_levenshtein_compare_yeti(hstring_t x, hstring_t y)
+dist_levenshtein_compare_yeti(hstring_t *x, hstring_t *y)
 {
     int i, *end, half;
     int *row; /* we only need to keep one row of costs */
 
     /* Catch trivial cases */
-    if (x.len == 0)
-        return y.len ;
-    if (y.len  == 0)
-        return x.len;
+    if (x->len == 0)
+        return y->len ;
+    if (y->len  == 0)
+        return x->len;
 
     /* Make the inner cycle (i.e. string2) the longer one */
-    if (x.len > y.len ) {
-        hstring_t z = x;
+    if (x->len > y->len ) {
+        hstring_t *z = x;
         x = y;
         y = z;
     }
 
-    /* Check x.len == 1 separately */
-    if (x.len == 1) {
+    /* Check x->len == 1 separately */
+    if (x->len == 1) {
 	int c = 0;
-	for (int k = 0; !c && k < y.len; k++) {
+	for (int k = 0; !c && k < y->len; k++) {
 	    if (!hstring_compare(x, 0, y, k))
 		c = 1;
 	}
-	return y.len - c;
+	return y->len - c;
     }
 
-    x.len++;
-    y.len++;
-    half = x.len >> 1;
+    x->len++;
+    y->len++;
+    half = x->len >> 1;
 
     /* Unitalize first row */
-    row = (int *) zmalloc((y.len ) * sizeof(int));
+    row = (int *) zmalloc ((y->len) * sizeof (int));
     if (!row) {
         error("Failed to allocate memory for Levenshtein distance");
         return 0;
     }
 
-    end = row + y.len  - 1;
-    for (i = 0; i < y.len  - half; i++)
+    end = row + y->len  - 1;
+    for (i = 0; i < y->len  - half; i++)
         row[i] = i;
 
     /*
-     * We don't have to scan two corner triangles (of size x.len/2) in the
+     * We don't have to scan two corner triangles (of size x->len/2) in the
      * matrix because no best path can go throught them.  Note this breaks
-     * when x.len == y.len == 2 so special case above is necessary
+     * when x->len == y->len == 2 so special case above is necessary
      */
-    row[0] = x.len  - half - 1;
-    for (i = 1; i < x.len ; i++) {
+    row[0] = x->len  - half - 1;
+    for (i = 1; i < x->len ; i++) {
         int *p;
         int char1p = i - 1;
         int char2p;
         int D, k;
         /* skip the upper triangle */
-        if (i >= x.len  - half) {
-            int offset = i - (x.len  - half);
+        if (i >= x->len  - half) {
+            int offset = i - (x->len  - half);
             int c3;
 
             char2p = offset;
@@ -134,7 +134,7 @@ dist_levenshtein_compare_yeti(hstring_t x, hstring_t y)
         }
         /* skip the lower triangle */
         if (i <= half + 1)
-            end = row + y.len  + i - half - 2;
+            end = row + y->len  + i - half - 2;
         /* main */
         while (p <= end) {
             int c3 = --D + (hstring_compare(x, char1p, y, char2p++) ? 1 : 0);
@@ -163,7 +163,7 @@ dist_levenshtein_compare_yeti(hstring_t x, hstring_t y)
 }
 
 /* Ugly macros to access arrays */
-#define ROWS(i,j)	rows[(i) * (y.len + 1) + (j)]
+#define ROWS(i,j)	rows[(i) * (y->len + 1) + (j)]
 
 /**
  * Computes the Levenshtein distance of two strings.
@@ -174,12 +174,12 @@ dist_levenshtein_compare_yeti(hstring_t x, hstring_t y)
  * @return Levenshtein distance
  */
 static float
-dist_levenshtein_compare_toub (measures_t *self, hstring_t x, hstring_t y)
+dist_levenshtein_compare_toub (measures_t *self, hstring_t *x, hstring_t *y)
 {
     measures_opts_t *opts = self->opts;
     int i, j, a, b;
 
-    if (x.len == 0 && y.len == 0)
+    if (x->len == 0 && y->len == 0)
         return 0;
 
     /*
@@ -188,21 +188,21 @@ dist_levenshtein_compare_toub (measures_t *self, hstring_t x, hstring_t y)
      * has a length m+1, so just O(m) space.  Initialize the curr row.
      */
     int curr = 0, next = 1;
-    int *rows = (int *) zmalloc(sizeof(int) * (y.len + 1) * 2);
+    int *rows = (int *) zmalloc(sizeof(int) * (y->len + 1) * 2);
     if (!rows) {
         error("Failed to allocate memory for Levenshtein distance");
         return 0;
     }
 
-    for (j = 0; j <= y.len; j++)
+    for (j = 0; j <= y->len; j++)
          ROWS(curr,j) = j;
 
     /* For each virtual row (we only have physical storage for two) */
-    for (i = 1; i <= x.len; i++) {
+    for (i = 1; i <= x->len; i++) {
 
         /* Fill in the values in the row */
         ROWS(next,0) = i;
-        for (j = 1; j <= y.len; j++) {
+        for (j = 1; j <= y->len; j++) {
 
             /* Insertion and deletion */
             a = ROWS(curr,j) + opts->cost_ins;
@@ -234,7 +234,7 @@ dist_levenshtein_compare_toub (measures_t *self, hstring_t x, hstring_t y)
             next = 1;
         }
     }
-    double d = ROWS(curr, y.len);
+    double d = ROWS(curr, y->len);
 
     /* Free memory */
     free(rows);
@@ -250,7 +250,7 @@ dist_levenshtein_compare_toub (measures_t *self, hstring_t x, hstring_t y)
  * @return Levenshtein distance
  */
 float
-dist_levenshtein_compare (measures_t *self, hstring_t x, hstring_t y)
+dist_levenshtein_compare (measures_t *self, hstring_t *x, hstring_t *y)
 {
     assert (self);
     float f;
@@ -365,12 +365,12 @@ dist_levenshtein_test (bool verbose)
 
     //  @selftest
     int i, err = FALSE;
-    hstring_t x, y;
+    hstring_t *x, *y;
     measures_t *levenshtein = measure_new ("dist_levenshtein");
 
     for (i = 0; tests[i].x && !err; i++) {
-        x = hstring_init (x, tests[i].x);
-        y = hstring_init (y, tests[i].y);
+        x = hstring_new (tests[i].x);
+        y = hstring_new (tests[i].y);
 
         if (strlen(tests[i].delim) == 0)
             config_set_string (levenshtein->cfg, "measures.granularity", "bytes");
@@ -379,8 +379,8 @@ dist_levenshtein_test (bool verbose)
 
         hstring_delim_set (tests[i].delim);
 
-        x = hstring_preproc (levenshtein, x);
-        y = hstring_preproc (levenshtein, y);
+        hstring_preproc (x, levenshtein);
+        hstring_preproc (y, levenshtein);
 
         float d = measure_compare (levenshtein, x, y);
         double diff = fabs (tests[i].v - d);

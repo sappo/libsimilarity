@@ -56,7 +56,7 @@ void dist_kernel_config(measures_t *self)
  * @param y second string
  * @return kernel value
  */
-static float kernel(measures_t *self, hstring_t x, hstring_t y)
+static float kernel(measures_t *self, hstring_t *x, hstring_t *y)
 {
     double k = func[kern].measure_compare(self, x, y);
     return knorm(self, k, x, y, func[kern].measure_compare);
@@ -68,7 +68,7 @@ static float kernel(measures_t *self, hstring_t x, hstring_t y)
  * @param y second string
  * @return kernel-based distance
  */
-float dist_kernel_compare(measures_t *self, hstring_t x, hstring_t y)
+float dist_kernel_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     assert (self);
     float k1, k2, k3;

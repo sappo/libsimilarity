@@ -47,18 +47,18 @@ void dist_hamming_config()
  * @param y second string
  * @return Hamming distance
  */
-float dist_hamming_compare(measures_t *self, hstring_t x, hstring_t y)
+float dist_hamming_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     float d = 0;
     int i;
 
     /* Loop over strings */
-    for (i = 0; i < x.len && i < y.len; i++)
+    for (i = 0; i < x->len && i < y->len; i++)
         if (hstring_compare(x, i, y, i))
             d += 1;
 
     /* Add remaining characters as mismatches */
-    d += fabs(y.len - x.len);
+    d += fabs(y->len - x->len);
 
     return lnorm(n, d, x, y);
 }

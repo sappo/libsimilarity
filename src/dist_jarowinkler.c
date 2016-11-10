@@ -71,30 +71,30 @@ void dist_jarowinkler_config()
  * @param y second string
  * @return Jaro distance
  */
-static float dist_jaro_compare_serrano(hstring_t x, hstring_t y)
+static float dist_jaro_compare_serrano(hstring_t *x, hstring_t *y)
 {
     int i, j, l;
     int m = 0, t = 0;
-    int range = max(0, max(x.len, y.len) / 2 - 1);
+    int range = max(0, max(x->len, y->len) / 2 - 1);
 
-    if (x.len == 0 && y.len == 0)
+    if (x->len == 0 && y->len == 0)
         return 0.0;
 
-    char *xflags = calloc(sizeof(char), x.len);
+    char *xflags = calloc(sizeof(char), x->len);
     if (!xflags) {
         error("Could not allocate memory for Jaro distance");
         return 0;
     }
 
-    char *yflags = calloc(sizeof(char), y.len);
+    char *yflags = calloc(sizeof(char), y->len);
     if (!yflags) {
         error("Could not allocate memory for Jaro distance");
         return 0;
     }
 
     /* Calculate matching characters */
-    for (i = 0; i < y.len; i++) {
-        for (j = max(i - range, 0), l = min(i + range + 1, x.len); j < l; j++) {
+    for (i = 0; i < y->len; i++) {
+        for (j = max(i - range, 0), l = min(i + range + 1, x->len); j < l; j++) {
             if (!hstring_compare(y, i, x, j) && !xflags[j]) {
                 xflags[j] = 1;
                 yflags[i] = 1;
@@ -109,9 +109,9 @@ static float dist_jaro_compare_serrano(hstring_t x, hstring_t y)
 
     /* Calculate character transpositions */
     l = 0;
-    for (i = 0; i < y.len; i++) {
+    for (i = 0; i < y->len; i++) {
         if (yflags[i] == 1) {
-            for (j = l; j < x.len; j++) {
+            for (j = l; j < x->len; j++) {
                 if (xflags[j] == 1) {
                     l = j + 1;
                     break;
@@ -126,7 +126,7 @@ static float dist_jaro_compare_serrano(hstring_t x, hstring_t y)
     free(xflags);
     free(yflags);
 
-    return 1 - ((((float) m / x.len) + ((float) m / y.len) +
+    return 1 - ((((float) m / x->len) + ((float) m / y->len) +
                  ((float) (m - t) / m)) / 3.0);
 }
 #else
@@ -137,27 +137,28 @@ static float dist_jaro_compare_serrano(hstring_t x, hstring_t y)
  * @param y second string
  * @return Jaro distance
  */
-static float dist_jaro_compare_yeti(hstring_t x, hstring_t y)
+static float dist_jaro_compare_yeti(hstring_t *x, hstring_t *y)
 {
     int i, j, halflen, trans, match, to;
     int *idx;
     float md;
 
-    if (x.len == 0 || y.len == 0) {
-        if (x.len == 0 && y.len == 0)
+    if (x->len == 0 || y->len == 0) {
+        if (x->len == 0 && y->len == 0)
             return 0.0;
         return 1.0;
     }
-    /* make x.len always shorter (or equally long) */
-    if (x.len > y.len) {
-        hstring_t z;
+    /* make x->len always shorter (or equally long) */
+    if (x->len > y->len) {
+        // TODO: verify it's still working
+        hstring_t *z;
         z = x;
         x = y;
         y = z;
     }
 
-    halflen = (x.len + 1) / 2;
-    idx = (int *) calloc(x.len, sizeof(int));
+    halflen = (x->len + 1) / 2;
+    idx = (int *) calloc(x->len, sizeof(int));
     if (!idx) {
         error("Failed to allocate memory for Jaro distance");
         return 0;
@@ -183,9 +184,9 @@ static float dist_jaro_compare_yeti(hstring_t x, hstring_t y)
     }
 
     /* the part with allowed range overlapping right */
-    to = x.len + halflen < y.len ? x.len + halflen : y.len;
+    to = x->len + halflen < y->len ? x->len + halflen : y->len;
     for (i = halflen; i < to; i++) {
-        for (j = i - halflen; j < x.len; j++) {
+        for (j = i - halflen; j < x->len; j++) {
             if (!hstring_compare(x, j, y, i) && !idx[j]) {
                 match++;
                 idx[j] = match;
@@ -200,7 +201,7 @@ static float dist_jaro_compare_yeti(hstring_t x, hstring_t y)
     /* count transpositions */
     i = 0;
     trans = 0;
-    for (j = 0; j < x.len; j++) {
+    for (j = 0; j < x->len; j++) {
         if (idx[j]) {
             i++;
             if (idx[j] != i)
@@ -210,7 +211,7 @@ static float dist_jaro_compare_yeti(hstring_t x, hstring_t y)
     free(idx);
 
     md = (float) match;
-    return 1.0 - (md / x.len + md / y.len + 1.0 - trans / md / 2.0) / 3.0;
+    return 1.0 - (md / x->len + md / y->len + 1.0 - trans / md / 2.0) / 3.0;
 }
 #endif
 
@@ -220,7 +221,7 @@ static float dist_jaro_compare_yeti(hstring_t x, hstring_t y)
  * @param y second string
  * @return Jaro-Winkler distance
  */
-float dist_jaro_compare(measures_t *self, hstring_t x, hstring_t y)
+float dist_jaro_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
 #ifdef JARO_COMPARE_SERRANO
     return dist_jaro_compare_serrano(x, y);
@@ -235,13 +236,13 @@ float dist_jaro_compare(measures_t *self, hstring_t x, hstring_t y)
  * @param y second string
  * @return Jaro-Winkler distance
  */
-float dist_jarowinkler_compare(measures_t *self, hstring_t x, hstring_t y)
+float dist_jarowinkler_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     int l;
     float d = dist_jaro_compare(self, x, y);
 
     /* Calculate common string prefix up to 4 chars */
-    int m = min(min(x.len, y.len), 4);
+    int m = min(min(x->len, y->len), 4);
     for (l = 0; l < m; l++)
         if (hstring_compare(x, l, y, l))
             break;

@@ -14,6 +14,6 @@
 
 /* Module interface */
 void kern_wdegree_config();
-float kern_wdegree_compare(measures_t *, hstring_t, hstring_t);
+float kern_wdegree_compare(measures_t *, hstring_t *, hstring_t *);
 
 #endif /* KERN_WDEGREE_H */

@@ -125,7 +125,7 @@ dist_damerau_config (measures_t *self)
 }
 
 /* Ugly macros to access arrays */
-#define D(i,j)       d[(i) * (y.len + 2) + (j)]
+#define D(i,j)       d[(i) * (y->len + 2) + (j)]
 
 //  --------------------------------------------------------------------------
 //  Computes the Damerau-Levenshtein distance of two strings. Adapted from
@@ -135,17 +135,17 @@ dist_damerau_config (measures_t *self)
 //  for each operation is 1.0. @TODO normalizations
 
 float
-dist_damerau_compare (measures_t *self, hstring_t x, hstring_t y)
+dist_damerau_compare (measures_t *self, hstring_t *x, hstring_t *y)
 {
     measures_opts_t *opts = self->opts;
     sym_hash_t *shash = NULL;
-    int i, j, inf = x.len + y.len;
+    int i, j, inf = x->len + y->len;
 
-    if (x.len == 0 && y.len == 0)
+    if (x->len == 0 && y->len == 0)
         return 0;
 
     /* Allocate table for dynamic programming */
-    int *d = (int *) zmalloc((x.len + 2) * (y.len + 2) * sizeof(int));
+    int *d = (int *) zmalloc((x->len + 2) * (y->len + 2) * sizeof(int));
     if (!d) {
         error("Could not allocate memory for Damerau-Levenshtein distance");
         return 0;
@@ -153,18 +153,18 @@ dist_damerau_compare (measures_t *self, hstring_t x, hstring_t y)
 
     /* Initialize distance matrix */
     D(0, 0) = inf;
-    for (i = 0; i <= x.len; i++) {
+    for (i = 0; i <= x->len; i++) {
         D(i + 1, 1) = i;
         D(i + 1, 0) = inf;
     }
-    for (j = 0; j <= y.len; j++) {
+    for (j = 0; j <= y->len; j++) {
         D(1, j + 1) = j;
         D(0, j + 1) = inf;
     }
 
-    for (i = 1; i <= x.len; i++) {
+    for (i = 1; i <= x->len; i++) {
         int db = 0;
-        for (j = 1; j <= y.len; j++) {
+        for (j = 1; j <= y->len; j++) {
             int i1 = hash_get(&shash, hstring_get(y, j - 1));
             int j1 = db;
             int dz = hstring_compare(x, i - 1, y, j - 1) ? opts->cost_sub : 0;
@@ -181,7 +181,7 @@ dist_damerau_compare (measures_t *self, hstring_t x, hstring_t y)
         hash_set(&shash, hstring_get(x, i - 1), i);
     }
 
-    float r = D(x.len + 1, y.len + 1);
+    float r = D(x->len + 1, y->len + 1);
 
     /* Free memory */
     free(d);
@@ -250,15 +250,15 @@ dist_damerau_test (bool verbose)
 
     //  @selftest
     int i, err = FALSE;
-    hstring_t x, y;
+    hstring_t *x, *y;
     measures_t *damerau = measure_new ("dist_damerau");
 
     for (i = 0; tests[i].x && !err; i++) {
-        x = hstring_init (x, tests[i].x);
-        y = hstring_init (y, tests[i].y);
+        x = hstring_new (tests[i].x);
+        y = hstring_new (tests[i].y);
 
-        x = hstring_preproc (damerau, x);
-        y = hstring_preproc (damerau, y);
+        hstring_preproc (x, damerau);
+        hstring_preproc (y, damerau);
 
         float d = measure_compare (damerau, x, y);
         double diff = fabs (tests[i].v - d);

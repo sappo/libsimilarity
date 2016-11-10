@@ -14,11 +14,11 @@
 
 /* Interface 1 */
 void dist_jarowinkler_config();
-float dist_jarowinkler_compare(measures_t *, hstring_t, hstring_t);
+float dist_jarowinkler_compare(measures_t *, hstring_t *, hstring_t *);
 
 /* Interface 2 */
 #define dist_jaro_config dist_jarowinkler_config
-float dist_jaro_compare(measures_t *, hstring_t, hstring_t);
+float dist_jaro_compare(measures_t *, hstring_t *, hstring_t *);
 
 
 #endif /* DIST_JAROWINKLER_H */

@@ -59,11 +59,11 @@ void sim_coefficient_config()
  * @param x string
  * @return histogram
  */
-static bag_t *bag_create(hstring_t x)
+static bag_t *bag_create(hstring_t *x)
 {
     bag_t *xh = NULL, *bag = NULL;
 
-    for (int i = 0; i < x.len; i++) {
+    for (int i = 0; i < x->len; i++) {
         sym_t s = hstring_get(x, i);
         HASH_FIND(hh, xh, &s, sizeof(sym_t), bag);
 
@@ -100,7 +100,7 @@ static void bag_destroy(bag_t * xh)
  * @param y second string
  * @return matches
  */
-static match_t match(hstring_t x, hstring_t y)
+static match_t match(hstring_t *x, hstring_t *y)
 {
     bag_t *xh, *yh, *xb, *yb;
     match_t m;
@@ -115,7 +115,7 @@ static match_t match(hstring_t x, hstring_t y)
 
     if (!binary) {
         /* Count matching */
-        missing = y.len;
+        missing = y->len;
         for (xb = xh; xb != NULL; xb = (bag_t *) xb->hh.next) {
             HASH_FIND(hh, yh, &(xb->sym), sizeof(sym_t), yb);
             if (!yb) {
@@ -154,7 +154,7 @@ static match_t match(hstring_t x, hstring_t y)
  * @param y String y
  * @return coefficient
  */
-float sim_jaccard_compare(measures_t *self, hstring_t x, hstring_t y)
+float sim_jaccard_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     match_t m = match(x, y);
     if (m.b == 0 && m.c == 0)
@@ -169,7 +169,7 @@ float sim_jaccard_compare(measures_t *self, hstring_t x, hstring_t y)
  * @param y String y
  * @return coefficient
  */
-float sim_simpson_compare(measures_t *self, hstring_t x, hstring_t y)
+float sim_simpson_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     match_t m = match(x, y);
     if (m.b == 0 && m.c == 0)
@@ -184,7 +184,7 @@ float sim_simpson_compare(measures_t *self, hstring_t x, hstring_t y)
  * @param y String y
  * @return coefficient
  */
-float sim_braun_compare(measures_t *self, hstring_t x, hstring_t y)
+float sim_braun_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     match_t m = match(x, y);
     if (m.b == 0 && m.c == 0)
@@ -199,7 +199,7 @@ float sim_braun_compare(measures_t *self, hstring_t x, hstring_t y)
  * @param y String y
  * @return coefficient
  */
-float sim_dice_compare(measures_t *self, hstring_t x, hstring_t y)
+float sim_dice_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     match_t m = match(x, y);
     if (m.b == 0 && m.c == 0)
@@ -214,7 +214,7 @@ float sim_dice_compare(measures_t *self, hstring_t x, hstring_t y)
  * @param y String y
  * @return coefficient
  */
-float sim_sokal_compare(measures_t *self, hstring_t x, hstring_t y)
+float sim_sokal_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     match_t m = match(x, y);
     if (m.b == 0 && m.c == 0)
@@ -229,7 +229,7 @@ float sim_sokal_compare(measures_t *self, hstring_t x, hstring_t y)
  * @param y String y
  * @return coefficient
  */
-float sim_kulczynski_compare(measures_t *self, hstring_t x, hstring_t y)
+float sim_kulczynski_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     match_t m = match(x, y);
     if (m.b == 0 && m.c == 0)
@@ -244,7 +244,7 @@ float sim_kulczynski_compare(measures_t *self, hstring_t x, hstring_t y)
  * @param y String y
  * @return coefficient
  */
-float sim_otsuka_compare(measures_t *self, hstring_t x, hstring_t y)
+float sim_otsuka_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     match_t m = match(x, y);
     if (m.b == 0 && m.c == 0)

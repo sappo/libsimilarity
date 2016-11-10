@@ -72,22 +72,22 @@ static int cmp_uint64(const void *x, const void *y)
  * @param x string
  * @return array of sorted k-mer hashes
  */
-static uint64_t *extract_kmers(hstring_t x)
+static uint64_t *extract_kmers(hstring_t *x)
 {
-    assert(x.len - len + 1 >= 0);
+    assert(x->len - len + 1 >= 0);
 
     int i;
 
-    uint64_t *xh = (uint64_t *) zmalloc(x.len * sizeof(uint64_t));
+    uint64_t *xh = (uint64_t *) zmalloc(x->len * sizeof(uint64_t));
     if (!xh) {
         error("Could not allocate memory for spectrum kernel");
         return NULL;
     }
 
-    for (i = 0; i < x.len - len + 1; i++)
+    for (i = 0; i < x->len - len + 1; i++)
         xh[i] = hstring_hash_sub(x, i, len);
 
-    qsort(xh, x.len - len + 1, sizeof(uint64_t), cmp_uint64);
+    qsort(xh, x->len - len + 1, sizeof(uint64_t), cmp_uint64);
     return xh;
 }
 
@@ -97,20 +97,20 @@ static uint64_t *extract_kmers(hstring_t x)
  * @param y second string
  * @return spectrum kernel
  */
-static float kernel(measures_t *self, hstring_t x, hstring_t y)
+static float kernel(measures_t *self, hstring_t *x, hstring_t *y)
 {
     float k = 0;
     int i = 0, j = 0;
 
     /* Check for small strings */
-    if (x.len < len || y.len < len)
+    if (x->len < len || y->len < len)
         return 0;
 
     /* Extract k-mers */
     uint64_t *xh = extract_kmers(x);
     uint64_t *yh = extract_kmers(y);
 
-    while(i < x.len - len + 1 && j < y.len - len + 1) {
+    while(i < x->len - len + 1 && j < y->len - len + 1) {
         if (xh[i] < yh[j]) {
             i++;
         } else if (xh[i] > yh[j]) {
@@ -145,7 +145,7 @@ static float kernel(measures_t *self, hstring_t x, hstring_t y)
  * @param y second string
  * @return spectrum kernel
  */
-float kern_spectrum_compare(measures_t *self, hstring_t x, hstring_t y)
+float kern_spectrum_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     assert (self);
     float k = kernel(self, x, y);

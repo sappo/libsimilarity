@@ -76,7 +76,7 @@ static float weight(float len, int degree)
  * @param len Length of region to match
  * @return kernel value
  */
-static float kern_wdegree(hstring_t x, hstring_t y, int xs, int ys, int len)
+static float kern_wdegree(hstring_t *x, hstring_t *y, int xs, int ys, int len)
 {
     int i, start;
     float k = 0;
@@ -109,7 +109,7 @@ static float kern_wdegree(hstring_t x, hstring_t y, int xs, int ys, int len)
  * @param y second string
  * @return weighted-degree kernel
  */
-static float kernel(measures_t *self, hstring_t x, hstring_t y)
+static float kernel(measures_t *self, hstring_t *x, hstring_t *y)
 {
     float k = 0;
     int s, len;
@@ -117,10 +117,10 @@ static float kernel(measures_t *self, hstring_t x, hstring_t y)
     /* Loop over shifts */
     for (s = -shift; s <= shift; s++) {
         if (s <= 0) {
-            len = fmax(fmin(x.len, y.len + s), 0);
+            len = fmax(fmin(x->len, y->len + s), 0);
             k += kern_wdegree(x, y, 0, -s, len);
         } else {
-            len = fmax(fmin(x.len - s, y.len), 0);
+            len = fmax(fmin(x->len - s, y->len), 0);
             k += kern_wdegree(x, y, +s, 0, len);
         }
     }
@@ -137,7 +137,7 @@ static float kernel(measures_t *self, hstring_t x, hstring_t y)
  * @param y second string
  * @return weighted-degree kernel
  */
-float kern_wdegree_compare(measures_t *self, hstring_t x, hstring_t y)
+float kern_wdegree_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     assert (self);
     float k = kernel(self, x, y);

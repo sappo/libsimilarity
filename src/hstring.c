@@ -6,7 +6,7 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details.
+ * warranty-> See the GNU General Public License for more details.
  */
 
 /**
@@ -19,7 +19,7 @@
 #include "harry_classes.h"
 
 /* Global delimiter table */
-char delim[256] = { DELIM_NOT_INIT };
+char delim[256] = { HSTRING_DELIM_NOT_INIT };
 
 /**
  * Structure for stop tokens (irrelevant tokens)
@@ -40,7 +40,7 @@ hstring_new (const char *str)
     assert (str);
     hstring_t *self = (hstring_t *) zmalloc (sizeof (hstring_t));
     self->str.c = strdup (str);
-    self->type = TYPE_BYTE;
+    self->type = HSTRING_TYPE_BYTE;
     self->len = strlen(self->str.c);
     self->src = NULL;
 
@@ -51,45 +51,35 @@ hstring_new (const char *str)
  * Free memory of the string object
  * @param x string object
  */
-void hstring_destroy(hstring_t *x)
+void
+hstring_destroy (hstring_t **self_p)
 {
-    switch (x->type) {
-    case TYPE_BYTE:
-    case TYPE_BIT:
-        if (x->str.c)
-            free(x->str.c);
-        break;
-    case TYPE_TOKEN:
-        if (x->str.s)
-            free(x->str.s);
-        break;
+    assert (self_p);
+    if (*self_p) {
+        hstring_t *self = *self_p;
+
+        switch (self->type) {
+        case HSTRING_TYPE_BYTE:
+        case HSTRING_TYPE_BIT:
+            if (self->str.c)
+                free(self->str.c);
+            break;
+        case HSTRING_TYPE_TOKEN:
+            if (self->str.s)
+                free(self->str.s);
+            break;
+        }
+
+        if (self->src)
+            free(self->src);
+
+        /* Make sure everything is null */
+        self->str.c = NULL;
+        self->str.s = NULL;
+        self->src = NULL;
+        self->len = 0;
+        free (self);
     }
-
-    if (x->src)
-        free(x->src);
-
-    /* Make sure everything is null */
-    x->str.c = NULL;
-    x->str.s = NULL;
-    x->src = NULL;
-    x->len = 0;
-}
-
-
-/**
- * Convert a c-style string to a string object. New memory is allocated
- * and the string is copied.
- * @param x string object
- * @param s c-style string
- */
-hstring_t hstring_init(hstring_t x, char *s)
-{
-    x.str.c = strdup(s);
-    x.type = TYPE_BYTE;
-    x.len = strlen(s);
-    x.src = NULL;
-
-    return x;
 }
 
 
@@ -99,7 +89,7 @@ hstring_t hstring_init(hstring_t x, char *s)
  */
 int hstring_has_delim()
 {
-    return (delim[0] != DELIM_NOT_INIT);
+    return (delim[0] != HSTRING_DELIM_NOT_INIT);
 }
 
 /**
@@ -108,18 +98,19 @@ int hstring_has_delim()
  * @param i position in string x
  * @return character/symbol
  */
-sym_t hstring_get(hstring_t x, int i)
+sym_t
+hstring_get (hstring_t *self, int i)
 {
-    assert(i < x.len);
+    assert(i < self->len);
     int b;
 
-    switch (x.type) {
-    case TYPE_TOKEN:
-        return x.str.s[i];
-    case TYPE_BYTE:
-        return x.str.c[i];
-    case TYPE_BIT:
-        b = x.str.c[i / 8];
+    switch (self->type) {
+    case HSTRING_TYPE_TOKEN:
+        return self->str.s[i];
+    case HSTRING_TYPE_BYTE:
+        return self->str.c[i];
+    case HSTRING_TYPE_BIT:
+        b = self->str.c[i / 8];
         return b >> (7 - i % 8) & 1;
     default:
         error("Unknown string type");
@@ -132,33 +123,34 @@ sym_t hstring_get(hstring_t x, int i)
  * Print string object
  * @param x string object
  */
-void hstring_print(hstring_t x)
+void
+hstring_print (hstring_t *self)
 {
     int i;
 
-    if (x.type == TYPE_BIT && x.str.c) {
-        for (i = 0; i < x.len; i++)
-            printf("%d", (int) hstring_get(x, i));
+    if (self->type == HSTRING_TYPE_BIT && self->str.c) {
+        for (i = 0; i < self->len; i++)
+            printf ("%d", (int) hstring_get(self, i));
         printf(" (bits)\n");
     }
 
-    if (x.type == TYPE_BYTE && x.str.c) {
-        for (i = 0; i < x.len; i++)
-            if (isprint(x.str.c[i]))
-                printf("%c", x.str.c[i]);
+    if (self->type == HSTRING_TYPE_BYTE && self->str.c) {
+        for (i = 0; i < self->len; i++)
+            if (isprint(self->str.c[i]))
+                printf("%c", self->str.c[i]);
             else
-                printf("%%%.2x", (char) x.str.c[i]);
+                printf("%%%.2x", (char) self->str.c[i]);
         printf(" (bytes)\n");
     }
 
-    if (x.type == TYPE_TOKEN && x.str.s) {
-        for (i = 0; i < x.len; i++)
-            printf("%" PRIu64 " ", (uint64_t) x.str.s[i]);
+    if (self->type == HSTRING_TYPE_TOKEN && self->str.s) {
+        for (i = 0; i < self->len; i++)
+            printf("%" PRIu64 " ", (uint64_t) self->str.s[i]);
         printf(" (tokens)\n");
     }
 
     printf("  [type: %d, len: %d; src: %s, label: %f]\n",
-           x.type, x.len, x.src, x.label);
+           self->type, self->len, self->src, self->label);
 }
 
 /**
@@ -200,7 +192,7 @@ void hstring_delim_set(const char *s)
  */
 void hstring_delim_reset()
 {
-    delim[0] = DELIM_NOT_INIT;
+    delim[0] = HSTRING_DELIM_NOT_INIT;
 }
 
 
@@ -209,54 +201,54 @@ void hstring_delim_reset()
  * Converts a string into a sequence of tokens using delimiter characters.
  * The original character string is lost.
  * @param x character string
- * @return string of tokens
+ * @return 0 if successful, otherwise -1
  */
-hstring_t hstring_tokenify(hstring_t x)
+int
+hstring_tokenify (hstring_t *self)
 {
     int i = 0, j = 0, k = 0, dlm = 0;
     int wstart = 0;
 
 
     /* A string of n chars can have at most n/2 + 1 tokens */
-    sym_t *sym = (sym_t *) zmalloc((x.len / 2 + 1) * sizeof(sym_t));
+    sym_t *sym = (sym_t *) zmalloc((self->len / 2 + 1) * sizeof(sym_t));
     if (!sym) {
         error("Failed to allocate memory for symbols");
-        return x;
+        return -1;
     }
 
     /* Find first delimiter symbol */
     for (dlm = 0; !delim[(unsigned char) dlm] && dlm < 256; dlm++);
 
     /* Remove redundant delimiters */
-    for (i = 0, j = 0; i < x.len; i++) {
-        if (delim[(unsigned char) x.str.c[i]]) {
-            if (j == 0 || delim[(unsigned char) x.str.c[j - 1]])
+    for (i = 0, j = 0; i < self->len; i++) {
+        if (delim[(unsigned char) self->str.c[i]]) {
+            if (j == 0 || delim[(unsigned char) self->str.c[j - 1]])
                 continue;
-            x.str.c[j++] = (char) dlm;
+            self->str.c[j++] = (char) dlm;
         } else {
-            x.str.c[j++] = x.str.c[i];
+            self->str.c[j++] = self->str.c[i];
         }
     }
 
     /* Extract tokens */
     for (wstart = i = 0; i < j + 1; i++) {
         /* Check for delimiters and remember start position */
-        if ((i == j || x.str.c[i] == dlm) && i - wstart > 0) {
+        if ((i == j || self->str.c[i] == dlm) && i - wstart > 0) {
             /* Hash token */
-            uint64_t hash = hash_str(x.str.c + wstart, i - wstart);
+            uint64_t hash = hash_str(self->str.c + wstart, i - wstart);
             sym[k++] = (sym_t) hash;
             wstart = i + 1;
         }
     }
-    x.len = k;
-    sym = (sym_t *) realloc(sym, x.len * sizeof(sym_t));
+    self->len = k;
+    sym = (sym_t *) realloc(sym, self->len * sizeof(sym_t));
 
     /* Change representation */
-    free(x.str.c);
-    x.str.s = sym;
-    x.type = TYPE_TOKEN;
-
-    return x;
+    free(self->str.c);
+    self->str.s = sym;
+    self->type = HSTRING_TYPE_TOKEN;
+    return 0;
 }
 
 /**
@@ -266,11 +258,11 @@ hstring_t hstring_tokenify(hstring_t x)
  * @param x character string
  * @return string of bits
  */
-hstring_t hstring_bitify(hstring_t x)
+void
+hstring_bitify (hstring_t *self)
 {
-    x.len = x.len * 8;
-    x.type = TYPE_BIT;
-    return x;
+    self->len = self->len * 8;
+    self->type = HSTRING_TYPE_BIT;
 }
 
 
@@ -279,15 +271,17 @@ hstring_t hstring_bitify(hstring_t x)
  * @param x string object
  * @param t granularity of string
  */
-hstring_t hstring_empty(hstring_t x, int t)
+hstring_t *
+hstring_empty (int t)
 {
-    x.str.c = (char *) zmalloc(0);
-    x.type = t;
-    x.label = 1.0;
-    x.len = 0;
-    x.src = NULL;
+    hstring_t *self = (hstring_t *) zmalloc (sizeof (hstring_t));
+    self->str.c = (char *) zmalloc(0);
+    self->type = t;
+    self->label = 1.0;
+    self->len = 0;
+    self->src = NULL;
 
-    return x;
+    return self;
 }
 
 /**
@@ -296,14 +290,15 @@ hstring_t hstring_empty(hstring_t x, int t)
  * @param x String to hash
  * @return hash value
  */
-uint64_t hstring_hash1(hstring_t x)
+uint64_t
+hstring_hash1 (hstring_t *self)
 {
-    if (x.type == TYPE_BIT && x.str.c)
-        return MurmurHash64B(x.str.c, sizeof(char) * x.len / 8, 0xc0ffee);
-    if (x.type == TYPE_BYTE && x.str.c)
-        return MurmurHash64B(x.str.c, sizeof(char) * x.len, 0xc0ffee);
-    if (x.type == TYPE_TOKEN && x.str.s)
-        return MurmurHash64B(x.str.s, sizeof(sym_t) * x.len, 0xc0ffee);
+    if (self->type == HSTRING_TYPE_BIT && self->str.c)
+        return MurmurHash64B(self->str.c, sizeof(char) * self->len / 8, 0xc0ffee);
+    if (self->type == HSTRING_TYPE_BYTE && self->str.c)
+        return MurmurHash64B(self->str.c, sizeof(char) * self->len, 0xc0ffee);
+    if (self->type == HSTRING_TYPE_TOKEN && self->str.s)
+        return MurmurHash64B(self->str.s, sizeof(sym_t) * self->len, 0xc0ffee);
 
     warning("Nothing to hash. String is missing");
     return 0;
@@ -317,23 +312,24 @@ uint64_t hstring_hash1(hstring_t x)
  * @param l Length of substring
  * @return hash value
  */
-uint64_t hstring_hash_sub(hstring_t x, int i, int l)
+uint64_t
+hstring_hash_sub (hstring_t *self, int i, int l)
 {
 
-    if (i > x.len - 1 || i + l > x.len) {
-        warning("Invalid range for substring (i:%d;l:%d;x:%d)", i, l, x.len);
+    if (i > self->len - 1 || i + l > self->len) {
+        warning("Invalid range for substring (i:%d;l:%d;x:%d)", i, l, self->len);
         return 0;
     }
 
-    if (x.type == TYPE_BIT && x.str.c) {
+    if (self->type == HSTRING_TYPE_BIT && self->str.c) {
         error("Substrings are currently not supported for bits");
         return 0;
     }
 
-    if (x.type == TYPE_BYTE && x.str.c)
-        return MurmurHash64B(x.str.c + i, sizeof(char) * l, 0xc0ffee);
-    if (x.type == TYPE_TOKEN && x.str.s)
-        return MurmurHash64B(x.str.s + i, sizeof(sym_t) * l, 0xc0ffee);
+    if (self->type == HSTRING_TYPE_BYTE && self->str.c)
+        return MurmurHash64B(self->str.c + i, sizeof(char) * l, 0xc0ffee);
+    if (self->type == HSTRING_TYPE_TOKEN && self->str.s)
+        return MurmurHash64B(self->str.s + i, sizeof(sym_t) * l, 0xc0ffee);
 
     warning("Nothing to hash. String is missing");
     return 0;
@@ -362,27 +358,59 @@ static uint64_t swap(uint64_t x)
  * @param y String to hash
  * @return hash value
  */
-uint64_t hstring_hash2(hstring_t x, hstring_t y)
+uint64_t
+hstring_hash2 (hstring_t *x, hstring_t *y)
 {
     uint64_t a, b;
 
-    if (x.type == TYPE_BIT && y.type == TYPE_BIT && x.str.c && y.str.c) {
-        a = MurmurHash64B(x.str.c, sizeof(char) * x.len / 8, 0xc0ffee);
-        b = MurmurHash64B(y.str.c, sizeof(char) * y.len / 8, 0xc0ffee);
+    if (x->type == HSTRING_TYPE_BIT && y->type == HSTRING_TYPE_BIT && x->str.c && y->str.c) {
+        a = MurmurHash64B(x->str.c, sizeof(char) * x->len / 8, 0xc0ffee);
+        b = MurmurHash64B(y->str.c, sizeof(char) * y->len / 8, 0xc0ffee);
         return swap(a) ^ b;
     }
-    if (x.type == TYPE_BYTE && y.type == TYPE_BYTE && x.str.c && y.str.c) {
-        a = MurmurHash64B(x.str.c, sizeof(char) * x.len, 0xc0ffee);
-        b = MurmurHash64B(y.str.c, sizeof(char) * y.len, 0xc0ffee);
+    if (x->type == HSTRING_TYPE_BYTE && y->type == HSTRING_TYPE_BYTE && x->str.c && y->str.c) {
+        a = MurmurHash64B(x->str.c, sizeof(char) * x->len, 0xc0ffee);
+        b = MurmurHash64B(y->str.c, sizeof(char) * y->len, 0xc0ffee);
         return swap(a) ^ b;
     }
-    if (x.type == TYPE_TOKEN && y.type == TYPE_TOKEN && x.str.s && y.str.s) {
-        a = MurmurHash64B(x.str.s, sizeof(sym_t) * x.len, 0xc0ffee);
-        b = MurmurHash64B(y.str.s, sizeof(sym_t) * y.len, 0xc0ffee);
+    if (x->type == HSTRING_TYPE_TOKEN && y->type == HSTRING_TYPE_TOKEN && x->str.s && y->str.s) {
+        a = MurmurHash64B(x->str.s, sizeof(sym_t) * x->len, 0xc0ffee);
+        b = MurmurHash64B(y->str.s, sizeof(sym_t) * y->len, 0xc0ffee);
         return swap(a) ^ b;
     }
 
     warning("Nothing to hash. Strings are missing or incompatible.");
+    return 0;
+}
+
+
+/**
+ * Compare two symbols/characters
+ * @param x string x
+ * @param i position in string x
+ * @param y string y
+ * @param j position in string y
+ * @return 0 if equal, < 0 if x smaller, > 0 if y smaller
+ */
+int
+hstring_compare (hstring_t *x, int i, hstring_t *y, int j)
+{
+    assert(x->type == y->type);
+    assert(i < x->len && j < y->len);
+    int a, b;
+
+    switch (x->type) {
+    case HSTRING_TYPE_BIT:
+        a = x->str.c[i / 8] >> (7 - i % 8) & 1;
+        b = y->str.c[j / 8] >> (7 - j % 8) & 1;
+        return (a - b);
+    case HSTRING_TYPE_TOKEN:
+        return (x->str.s[i] - y->str.s[j]);
+    case HSTRING_TYPE_BYTE:
+        return (x->str.c[i] - y->str.c[j]);
+    default:
+        error("Unknown string type");
+    }
     return 0;
 }
 
@@ -421,15 +449,16 @@ void stoptokens_load(const char *file)
  * Filter stop tokens from symbols
  * @param x Symbolized string
  */
-hstring_t stoptokens_filter(hstring_t x)
+static void
+stoptokens_filter (hstring_t *self)
 {
-    assert(x.type == TYPE_TOKEN);
+    assert(self->type == HSTRING_TYPE_TOKEN);
     stoptoken_t *stoptoken;
     int i, j;
 
-    for (i = j = 0; i < x.len; i++) {
+    for (i = j = 0; i < self->len; i++) {
         /* Check for stop token */
-        sym_t sym = x.str.s[i];
+        sym_t sym = self->str.s[i];
         HASH_FIND(hh, stoptokens, &sym, sizeof(sym_t), stoptoken);
 
         /* Remove stoptoken */
@@ -437,21 +466,22 @@ hstring_t stoptokens_filter(hstring_t x)
             continue;
 
         if (i != j)
-            x.str.s[j] = x.str.s[i];
+            self->str.s[j] = self->str.s[i];
         j++;
     }
-    x.len = j;
-    return x;
+    self->len = j;
 }
 
-/**
- * Preprocess a given string
- * @param x character string
- * @return preprocessed string
- */
-hstring_t hstring_preproc(measures_t *measure, hstring_t x)
+
+//  --------------------------------------------------------------------------
+//  Preprocess a given string
+//  @param x character string
+//  @return preprocessed string
+
+void
+hstring_preproc (hstring_t *self, measures_t *measure)
 {
-    assert(x.type == TYPE_BYTE);
+    assert(self->type == HSTRING_TYPE_BYTE);
     int decode, reverse, soundex, c, i, k;
     const char *gran;
 
@@ -461,36 +491,34 @@ hstring_t hstring_preproc(measures_t *measure, hstring_t x)
     config_lookup_bool(measure->cfg, "input.soundex", &soundex);
 
     if (decode) {
-        x.len = decode_str(x.str.c);
-        x.str.c = (char *) realloc(x.str.c, x.len);
+        self->len = decode_str(self->str.c);
+        self->str.c = (char *) realloc(self->str.c, self->len);
     }
 
     if (reverse) {
-        for (i = 0, k = x.len - 1; i < k; i++, k--) {
-            c = x.str.c[i];
-            x.str.c[i] = x.str.c[k];
-            x.str.c[k] = c;
+        for (i = 0, k = self->len - 1; i < k; i++, k--) {
+            c = self->str.c[i];
+            self->str.c[i] = self->str.c[k];
+            self->str.c[k] = c;
         }
     }
 
     if (soundex)
-        x = hstring_soundex(x);
+        hstring_soundex (self);
 
-    if (!strcasecmp(gran, "bytes")) {
+    if (!strcasecmp (gran, "bytes")) {
         /* nothing */
-    } else if (!strcasecmp(gran, "tokens")) {
-        assert(hstring_has_delim());
-        x = hstring_tokenify(x);
-    } else if (!strcasecmp(gran, "bits")) {
-        x = hstring_bitify(x);
+    } else if (!strcasecmp (gran, "tokens")) {
+        assert (hstring_has_delim ());
+        hstring_tokenify (self);
+    } else if (!strcasecmp (gran, "bits")) {
+        hstring_bitify (self);
     } else {
         error("Unknown granularity '%s'. Using 'bytes' instead.", gran);
     }
 
     if (stoptokens)
-        x = stoptokens_filter(x);
-
-    return x;
+        stoptokens_filter (self);
 }
 
 /**
@@ -510,7 +538,7 @@ void stoptokens_destroy()
 /**
  * Soundex code as implemented by Kevin Setter, 8/27/97 with some
  * slight modifications. Known bugs: Consonants separated by a vowel
- * are treated as one character, if they have the same index. This
+ * are treated as one character, if they have the same indeself-> This
  * is wrong. :(
  *
  * @param in input string
@@ -620,19 +648,20 @@ static void soundex(char *in, int len, char *out)
  * Perform a soundex transformation of each token.
  * @param x string
  */
-hstring_t hstring_soundex(hstring_t x)
+void
+hstring_soundex (hstring_t * self)
 {
     int start = 0, i, alloc = 0, end = 0;
     char sdx[5], *out = NULL;
 
-    assert(x.type == TYPE_BYTE);
+    assert(self->type == HSTRING_TYPE_BYTE);
 
-    for (i = 0; i < x.len; i++) {
+    for (i = 0; i < self->len; i++) {
         /* Compute soundex for each substring of letters */
-        if (i == x.len - 1 || !isalpha(x.str.c[i])) {
+        if (i == self->len - 1 || !isalpha(self->str.c[i])) {
             if (start < i) {
-                int len = i - start + ((i == x.len - 1) ? 1 : 0);
-                soundex(x.str.c + start, len, sdx);
+                int len = i - start + ((i == self->len - 1) ? 1 : 0);
+                soundex (self->str.c + start, len, sdx);
             }
             start = i + 1;
 
@@ -649,10 +678,9 @@ hstring_t hstring_soundex(hstring_t x)
     }
 
     /* Overwrite original stirng data */
-    free(x.str.c);
-    x.str.c = out;
-    x.len = end - 1;
-    return x;
+    free(self->str.c);
+    self->str.c = out;
+    self->len = end - 1;
 }
 
 

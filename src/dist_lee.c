@@ -45,16 +45,16 @@ void dist_lee_config()
  * @param y second string
  * @return Lee distance
  */
-float dist_lee_compare(measures_t *self, hstring_t x, hstring_t y)
+float dist_lee_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     float d = 0, ad;
     int i, q = max_sym - min_sym;
 
     /* Loop over strings */
-    for (i = 0; i < x.len || i < y.len; i++) {
-        if (i < x.len && i < y.len)
+    for (i = 0; i < x->len || i < y->len; i++) {
+        if (i < x->len && i < y->len)
             ad = fabs(hstring_compare(x, i, y, i) - min_sym);
-        else if (i < x.len)
+        else if (i < x->len)
             ad = fabs(hstring_get(x, i) - min_sym);
         else
             ad = fabs(hstring_get(y, i) - min_sym);

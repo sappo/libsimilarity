@@ -14,6 +14,6 @@
 
 /* Module interface */
 void dist_hamming_config();
-float dist_hamming_compare(measures_t *, hstring_t, hstring_t);
+float dist_hamming_compare(measures_t *, hstring_t *, hstring_t *);
 
 #endif /* DIST_HAMMING_H */

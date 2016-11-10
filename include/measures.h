@@ -17,7 +17,7 @@ typedef void (measure_config_fn) (
     measures_t *);
 //  Comparison function
 typedef float (measure_compare_fn) (
-    measures_t *, hstring_t, hstring_t);
+    measures_t *, hstring_t *, hstring_t *);
 
 /**
  * Structure for measure interface
@@ -64,7 +64,7 @@ char *
     measure_config (measures_t *self, const char *name);
 
 double
-    measure_compare(measures_t *self, hstring_t x, hstring_t y);
+    measure_compare(measures_t *self, hstring_t *x, hstring_t *y);
 
 void
     measure_fprint(FILE *);

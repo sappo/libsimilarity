@@ -54,11 +54,11 @@ void dist_bag_config()
  * @param x string
  * @return histogram
  */
-static bag_t *bag_create(hstring_t x)
+static bag_t *bag_create(hstring_t *x)
 {
     bag_t *xh = NULL, *bag = NULL;
 
-    for (int i = 0; i < x.len; i++) {
+    for (int i = 0; i < x->len; i++) {
         sym_t s = hstring_get(x, i);
         HASH_FIND(hh, xh, &s, sizeof(sym_t), bag);
 
@@ -96,7 +96,7 @@ static void bag_destroy(bag_t * xh)
  * @param y second string
  * @return Bag distance
  */
-float dist_bag_compare(measures_t *self, hstring_t x, hstring_t y)
+float dist_bag_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     float xd = 0, yd = 0;
     bag_t *xh, *yh, *xb, *yb;
@@ -104,7 +104,7 @@ float dist_bag_compare(measures_t *self, hstring_t x, hstring_t y)
     xh = bag_create(x);
     yh = bag_create(y);
 
-    int missing = y.len;
+    int missing = y->len;
     for (xb = xh; xb != NULL; xb = (bag_t *) xb->hh.next) {
         HASH_FIND(hh, yh, &(xb->sym), sizeof(sym_t), yb);
         if (!yb) {

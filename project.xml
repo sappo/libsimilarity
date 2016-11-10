@@ -36,7 +36,7 @@
     <class name = "rwlock" private = "1" />
     <class name = "util" private = "0" />
     <class name = "vcache" private = "1" />
-    <class name = "hstring" private = "0" />
+    <class name = "hstring" />
     <class name = "hmatrix" private = "1" />
     <class name = "hconfig" private = "1" />
 

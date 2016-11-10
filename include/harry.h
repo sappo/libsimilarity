@@ -45,4 +45,28 @@ typedef int cfg_int;
 #endif
 #endif
 
+/*
+ * Symbols for tokens. Note: Some measures enumerate all possible symbols.
+ * These need to be patched first to support larger symbol sizes.
+ */
+typedef uint64_t sym_t;
+
+/**
+ * Structure for a string
+ */
+struct _hstring_t
+{
+    union
+    {
+        char *c;              /**< Byte or bit representation */
+        sym_t *s;             /**< Word representation */
+    } str;
+
+    int len;                  /**< Length of string */
+    unsigned int type;        /**< Type of string */
+
+    char *src;                /**< Optional source of string */
+    float label;              /**< Optional label of string */
+};
+
 #endif

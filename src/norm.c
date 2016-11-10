@@ -45,15 +45,15 @@ lnorm_t lnorm_get(const char *str)
  * @param y String
  * @return Normalized similarity value
  */
-float lnorm(lnorm_t n, float d, hstring_t x, hstring_t y)
+float lnorm(lnorm_t n, float d, hstring_t *x, hstring_t *y)
 {
     switch (n) {
     case LN_MIN:
-        return d / fmin(x.len, y.len);
+        return d / fmin(x->len, y->len);
     case LN_MAX:
-        return d / fmax(x.len, y.len);
+        return d / fmax(x->len, y->len);
     case LN_AVG:
-        return d / (0.5 * (x.len + y.len));
+        return d / (0.5 * (x->len + y->len));
     case LN_NONE:
     default:
         return d;
@@ -86,8 +86,8 @@ knorm_t knorm_get(const char *str)
  * @param kernel Kernel function
  * @return Normalized similarity value
  */
-float knorm(measures_t *self, float k, hstring_t x, hstring_t y,
-            float (*kernel) (measures_t *, hstring_t, hstring_t))
+float knorm(measures_t *self, float k, hstring_t *x, hstring_t *y,
+            float (*kernel) (measures_t *, hstring_t *, hstring_t *))
 {
     uint64_t xk, yk;
     float xv, yv;

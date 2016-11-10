@@ -14,7 +14,7 @@
 
 /* Module interface */
 void dist_damerau_config(measures_t *);
-float dist_damerau_compare(measures_t *, hstring_t, hstring_t);
+float dist_damerau_compare(measures_t *, hstring_t *, hstring_t *);
 void dist_damerau_test (bool verbose);
 
 #endif /* DIST_DAMERAU_H */

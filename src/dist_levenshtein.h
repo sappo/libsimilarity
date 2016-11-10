@@ -14,7 +14,7 @@
 
 /* Module interface */
 void dist_levenshtein_config(measures_t *);
-float dist_levenshtein_compare(measures_t *, hstring_t, hstring_t);
+float dist_levenshtein_compare(measures_t *, hstring_t *, hstring_t *);
 void dist_levenshtein_test (bool verbose);
 
 #endif /* DIST_LEVENSHTEIN_H */

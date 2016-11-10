@@ -84,6 +84,11 @@ src_harry_selftest_LDADD = ${program_libs}
 src_harry_selftest_SOURCES = src/harry_selftest.c
 endif #ENABLE_HARRY_SELFTEST
 
+# Install api files into /usr/local/share/zproject
+apidir = @datadir@/zproject/harry
+dist_api_DATA = \
+    api/hstring.api
+
 # define custom target for all products of /src
 src:
 	src/harry_selftest \
