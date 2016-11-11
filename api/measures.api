@@ -10,6 +10,82 @@
     -->
     Interface and functions for computing similarity measures for strings
 
+    Options:
+    - measures.global_cache = false;
+        Enables global cache
+
+    - measures.granularity = "bytes";
+        This parameter controls the granularity of strings. It can be set to
+        either bits, bytes or tokens. Depending in the granularity a string is
+        considered as a sequence of bits, bytes or tokens, which results in
+        different similarity values during comparison.
+
+    - measures.token_delim = "";
+        The parameter token_delim defines characters for delimiting tokens in
+        strings, for example " %0a%0d".  It is only considered, if the
+        granularity is set to tokens, otherwise it is ignored.
+
+    - input.decode_str = false;
+        If this parameter is set to true, harry automatically decodes strings
+        that contain URI-encoded characters.  That is, substrings of the form
+        %XX are replaced with the byte corresponding to the hexadecimal number
+        XX.
+
+    - reverse_str = false;
+        If this parameter is set to true, the characters of all input strings
+        will be reversed.  Such reversing might help in situations where the
+        reading direction of the input strings is unspecified
+
+    - input.soundex = false;
+        All tokens in the strings are mapped to the soundex index. For example,
+        "Pfister" is mapped to "P236" and "Jackson" to "J250".  The soundex
+        index has been originally designed for comparing names, however, in
+        harry it can be applied to all sorts of tokens, if they are composed of
+        alphabetic letters.  Punctation characters are ignored and thus the
+        string "Hey, I am here with Harry!", gets mapped to "H000 I000 A500
+        H600 W300 H600".
+
+    * dist_damerau:
+        This module implements the Damerau-Levenshtein distance (see Damerau,
+        1964). The runtime and space complexity of a comparison is quadratic in
+        the length of the strings.  The following parameters are supported:
+
+        measures.dist_damerau.norm = "none";
+            This parameter specifies the normalization of the distance.
+            Supported values are "none" for no normalization, "min" for
+            normalization on the minimum length, "max" for normalization on the
+            maximum length, "avg" for normalization on the average length of
+            the compared strings.
+
+        measures.dist_damerau.cost_ins = 1.0;
+        measures.dist_damerau.cost_del = 1.0;
+        measures.dist_damerau.cost_sub = 1.0;
+        measures.dist_damerau.cost_tra = 1.0;
+            The computation of the distance can be adapted using four
+            parameters defining the cost for an insertion, deletion,
+            substitution and transposition, respectively.  The default costs
+            are 1.0 for each operation.
+
+    * dist_levenshtein:
+        This module implements the Levenshtein distance (see Levenshtein, 1966).
+        The runtime complexity of a comparison is quadratic in the length of the
+        strings. The following parameters are supported:
+
+        measures.dist_levenshtein.norm = "none";
+            This parameter specifies the normalization of the distance.
+            Supported values are "none" for no normalization, "min" for
+            normalization on the minimum length, "max" for normalization on the
+            maximum length, "avg" for normalization on the average length of
+            the compared
+
+        measures.dist_levenshtein.cost_ins = 1.0;
+        measures.dist_levenshtein.cost_del = 1.0;
+        measures.dist_levenshtein.cost_sub = 1.0;
+            The computation of the distance can be adapted using three
+            parameters defining the cost for an insertion, deletion and
+            substitution, respectively.  The default costs are 1.0 for each
+            operation.
+
     <callback_type name = "config_fn">
         Init function for similarity measure implementations
         <argument name = "self" type = "measures" />
