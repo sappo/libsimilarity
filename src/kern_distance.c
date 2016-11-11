@@ -23,7 +23,7 @@
  */
 
 /* External variables */
-extern measure_func_t func[];
+extern measures_func_t func[];
 
 /* Normalizations */
 static knorm_t norm = KN_NONE;
@@ -41,7 +41,7 @@ void kern_distance_config(measures_t *self)
 
     /* Distance measure */
     config_lookup_string(self->cfg, "measures.kern_distance.dist", &str);
-    dist = measure_match(str);
+    dist = measures_match(str);
     func[dist].measure_config(self);
 
     /* Substitution type */

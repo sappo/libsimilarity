@@ -251,7 +251,7 @@ dist_damerau_test (bool verbose)
     //  @selftest
     int i, err = FALSE;
     hstring_t *x, *y;
-    measures_t *damerau = measure_new ("dist_damerau");
+    measures_t *damerau = measures_new ("dist_damerau");
 
     for (i = 0; tests[i].x && !err; i++) {
         x = hstring_new (tests[i].x);
@@ -260,7 +260,7 @@ dist_damerau_test (bool verbose)
         hstring_preproc (x, damerau);
         hstring_preproc (y, damerau);
 
-        float d = measure_compare (damerau, x, y);
+        float d = measures_compare (damerau, x, y);
         double diff = fabs (tests[i].v - d);
 
         if (diff > 1e-6) {
@@ -273,7 +273,7 @@ dist_damerau_test (bool verbose)
         hstring_destroy (&x);
         hstring_destroy (&y);
     }
-    measure_destroy (&damerau);
+    measures_destroy (&damerau);
     //  @end
 
     printf(" OK\n");

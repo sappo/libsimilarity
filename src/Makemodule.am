@@ -87,7 +87,8 @@ endif #ENABLE_HARRY_SELFTEST
 # Install api files into /usr/local/share/zproject
 apidir = @datadir@/zproject/harry
 dist_api_DATA = \
-    api/hstring.api
+    api/hstring.api \
+    api/measures.api
 
 # define custom target for all products of /src
 src:

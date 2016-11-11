@@ -366,23 +366,23 @@ dist_levenshtein_test (bool verbose)
     //  @selftest
     int i, err = FALSE;
     hstring_t *x, *y;
-    measures_t *levenshtein = measure_new ("dist_levenshtein");
+    measures_t *levenshtein = measures_new ("dist_levenshtein");
 
     for (i = 0; tests[i].x && !err; i++) {
         x = hstring_new (tests[i].x);
         y = hstring_new (tests[i].y);
 
         if (strlen(tests[i].delim) == 0)
-            config_set_string (levenshtein->cfg, "measures.granularity", "bytes");
+            measures_config_set_string (levenshtein, "measures.granularity", "bytes");
         else
-            config_set_string (levenshtein->cfg, "measures.granularity", "tokens");
+            measures_config_set_string (levenshtein, "measures.granularity", "tokens");
 
         hstring_delim_set (tests[i].delim);
 
         hstring_preproc (x, levenshtein);
         hstring_preproc (y, levenshtein);
 
-        float d = measure_compare (levenshtein, x, y);
+        float d = measures_compare (levenshtein, x, y);
         double diff = fabs (tests[i].v - d);
 
         if (diff > 1e-6) {
@@ -395,7 +395,7 @@ dist_levenshtein_test (bool verbose)
         hstring_destroy (&x);
         hstring_destroy (&y);
     }
-    measure_destroy (&levenshtein);
+    measures_destroy (&levenshtein);
     //  @end
 
     printf(" OK\n");

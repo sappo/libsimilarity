@@ -25,7 +25,7 @@ int log_line;
 config_t *cfg;
 
 /* Module interfaces */
-measure_func_t func[] = {
+measures_func_t func[] = {
     {"dist_bag", dist_bag_config, dist_bag_compare},
     {"dist_compression", dist_compression_config, dist_compression_compare},
     {"dist_ncd", dist_compression_config, dist_compression_compare},
@@ -66,10 +66,10 @@ measure_func_t func[] = {
 //  if measure function could not be found.
 
 measures_t *
-measure_new (const char *name)
+measures_new (const char *name)
 {
     assert (name);
-    if (measure_match (name) == 0)
+    if (measures_match (name) == 0)
         return NULL;
 
     int rc = 0;
@@ -81,7 +81,7 @@ measure_new (const char *name)
     assert (self->cfg);
     rc = config_check (self->cfg);
     assert (rc != 0);
-    measure_config (self, name);
+    measures_config (self, name);
     self->idx = 0;
     self->verbose = 0;
     self->log_line = 0;
@@ -93,7 +93,7 @@ measure_new (const char *name)
 //  Destroy a measures instance.
 
 void
-measure_destroy (measures_t **self_p)
+measures_destroy (measures_t **self_p)
 {
     assert (self_p);
     if (*self_p) {
@@ -111,7 +111,7 @@ measure_destroy (measures_t **self_p)
  * @param name to check
  */
 int
-measure_match(const char *name)
+measures_match(const char *name)
 {
     int r = 0;
     float d, dist = FLT_MAX;
@@ -146,7 +146,7 @@ measure_match(const char *name)
  * @return name of selected similarity measure
  */
 char *
-measure_config (measures_t *self, const char *name)
+measures_config (measures_t *self, const char *name)
 {
     assert (self);
     assert (name);
@@ -163,7 +163,7 @@ measure_config (measures_t *self, const char *name)
     config_lookup_int(self->cfg, "measures.global_cache", &self->global_cache);
 
     /* Configure */
-    self->idx = measure_match(name);
+    self->idx = measures_match(name);
     self->func = &func[self->idx];
     self->func->measure_config(self);
     return self->func->name;
@@ -174,7 +174,7 @@ measure_config (measures_t *self, const char *name)
  * @param f File stream
  */
 void
-measure_fprint (FILE *f)
+measures_fprint (FILE *f)
 {
         fprintf(f,
            "    dist_bag             Bag distance\n"
@@ -208,8 +208,8 @@ measure_fprint (FILE *f)
  * @param y second second
  * @return similarity/dissimilarity value
  */
-double
-measure_compare(measures_t *self, hstring_t *x, hstring_t *y)
+float
+measures_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
     if (!self->global_cache)
         return self->func->measure_compare(self, x, y);
@@ -222,6 +222,55 @@ measure_compare(measures_t *self, hstring_t *x, hstring_t *y)
         vcache_store(xyk, m, ID_COMPARE);
     }
     return m;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Sets a string configuration
+
+void
+measures_config_set_string (measures_t *self, const char *key, const char *value)
+{
+    assert (self);
+    assert (key);
+    assert (value);
+    config_set_string (self->cfg, key, value);
+}
+
+
+//  --------------------------------------------------------------------------
+//  Sets a integer configuration
+
+void
+measures_config_set_int (measures_t *self, const char *key, const int value)
+{
+    assert (self);
+    assert (key);
+    config_set_int (self->cfg, key, value);
+}
+
+
+//  --------------------------------------------------------------------------
+//  Sets a float configuration
+
+void
+measures_config_set_float (measures_t *self, const char *key, const float value)
+{
+    assert (self);
+    assert (key);
+    config_set_float (self->cfg, key, value);
+}
+
+
+//  --------------------------------------------------------------------------
+//  Sets a boolean configuration
+
+void
+measures_config_set_bool (measures_t *self, const char *key, const bool value)
+{
+    assert (self);
+    assert (key);
+    config_set_bool (self->cfg, key, value);
 }
 
 

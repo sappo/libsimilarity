@@ -23,7 +23,7 @@
 
 /* External variables */
 extern config_t cfg;
-extern measure_func_t func[];
+extern measures_func_t func[];
 
 /* Normalizations */
 static knorm_t norm = KN_NONE;
@@ -39,7 +39,7 @@ void dist_kernel_config(measures_t *self)
 
     /* Kernel measure */
     config_lookup_string(self->cfg, "measures.dist_kernel.kern", &str);
-    kern = measure_match(str);
+    kern = measures_match(str);
     func[kern].measure_config(self);
 
     /* Parameters */

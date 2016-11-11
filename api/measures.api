@@ -1,0 +1,83 @@
+<class name = "measures">
+    <!--
+    Copyright (C) 2013-2014 Konrad Rieck (konrad@mlsec.org)
+
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation; either version 3 of the License, or (at your
+    option) any later version.  This program is distributed without any
+    warranty. See the GNU General Public License for more details.
+    -->
+    Interface and functions for computing similarity measures for strings
+
+    <callback_type name = "config_fn">
+        Init function for similarity measure implementations
+        <argument name = "self" type = "measures" />
+    </callback_type>
+
+    <callback_type name = "compare_fn">
+        Compare function for similarity measure implementations. Returns
+        distance or simularity measure.
+        <argument name = "self" type = "measures" />
+        <argument name = "x" type = "hstring" />
+        <argument name = "y" type = "hstring" />
+        <return type = "real" />
+    </callback_type>
+
+    <constructor>
+        Creates a new measures instance for the given measure function. Return
+        a measures instance initialized with measure function default values or
+        NULL if measure function could not be found.
+        <argument name = "function" type = "string" />
+    </constructor>
+
+    <destructor>
+        Destroys a measures instance.
+    </destructor>
+
+    <method name = "compare">
+        Compares two strings with the given similarity measure. Returns
+        similarity/dissimilarity value.
+        <argument name = "x" type = "hstring" />
+        <argument name = "y" type = "hstring" />
+        <return type = "real" />
+    </method>
+
+    <method name = "config set string">
+        Sets a string configuration
+        <argument name = "key" type = "string" />
+        <argument name = "value" type = "string" />
+    </method>
+
+    <method name = "config set int">
+        Sets an integer configuration
+        <argument name = "key" type = "string" />
+        <argument name = "value" type = "integer" mutable = "0"/>
+    </method>
+
+    <method name = "config set float">
+        Sets an float configuration
+        <argument name = "key" type = "string" />
+        <argument name = "value" type = "real" mutable = "0"/>
+    </method>
+
+    <method name = "config set bool">
+        Sets an integer configuration
+        <argument name = "key" type = "string" />
+        <argument name = "value" type = "boolean" mutable = "0"/>
+    </method>
+
+    <method name = "match" singleton = "1">
+        Finds best matching measure for name. Returns index of measure found,
+        otherwise 0.
+        <argument name = "name" type = "string" />
+        <return type = "integer" />
+    </method>
+
+    <method name = "config">
+        Configures the measure for a given similarity measure with its default
+        values. Returns the name of the selected similarity measure
+        <argument name = "name" type = "string" />
+        <return type = "string" mutable = "1" />
+    </method>
+</class>

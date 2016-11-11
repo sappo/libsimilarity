@@ -48,54 +48,54 @@ HARRY_EXPORT void
 
 //  *** Draft method, for development use, may change without warning ***
 //  Check whether delimiters have been set. Returns true if delimiters have
-//  been set, otherwise false.
+//  been set, otherwise false.                                             
 HARRY_EXPORT int
     hstring_has_delim (void);
 
 //  *** Draft method, for development use, may change without warning ***
 //  Resets delimiters table. There is a global table of delimiter symbols
-//  which is only initialized once the first sequence is processed. This
-//  functions is used to trigger a re-initialization.
+//  which is only initialized once the first sequence is processed. This 
+//  functions is used to trigger a re-initialization.                    
 HARRY_EXPORT void
     hstring_delim_reset (void);
 
 //  *** Draft method, for development use, may change without warning ***
-//
+//  
 HARRY_EXPORT void
     hstring_preproc (hstring_t *self, measures_t *measure);
 
 //  *** Draft method, for development use, may change without warning ***
 //  Converts a string into a sequence of tokens using delimiter characters.
-//  The original character string is lost. Returns 0 if successful,
-//  otherwise -1.
+//  The original character string is lost. Returns 0 if successful,        
+//  otherwise -1.                                                          
 HARRY_EXPORT int
     hstring_tokenify (hstring_t *self);
 
 //  *** Draft method, for development use, may change without warning ***
 //  Converts a string into a sequence of bits. Well, actually there is no
-//  conversion except for that the counting now happens on the level of
-//  bits instead of bytes.
+//  conversion except for that the counting now happens on the level of  
+//  bits instead of bytes.                                               
 HARRY_EXPORT void
     hstring_bitify (hstring_t *self);
 
 //  *** Draft method, for development use, may change without warning ***
 //  Computes a 64-bit hash for a substring. Collisions are possible but not
-//  very likely (hopefully). Returns 64-bit hash.
+//  very likely (hopefully). Returns 64-bit hash.                          
 HARRY_EXPORT uint64_t
     hstring_hash_sub (hstring_t *self, int start, int len);
 
 //  *** Draft method, for development use, may change without warning ***
-//  Computes a 64-bit hash for a string. The hash is used at different
+//  Computes a 64-bit hash for a string. The hash is used at different  
 //  locations.  Collisions are possible but not very likely (hopefully).
-//  Returns 64-bit hash.
+//  Returns 64-bit hash.                                                
 HARRY_EXPORT uint64_t
     hstring_hash1 (hstring_t *self);
 
 //  *** Draft method, for development use, may change without warning ***
-//  Computes a 64-bit hash for two strings. The computation is symmetric,
-//  that is, the same strings retrieve the same hash independent of their
+//  Computes a 64-bit hash for two strings. The computation is symmetric,  
+//  that is, the same strings retrieve the same hash independent of their  
 //  order.  Collisions are possible but not very likely (hopefully). Return
-//  64-bit hash.
+//  64-bit hash.                                                           
 HARRY_EXPORT uint64_t
     hstring_hash2 (hstring_t *x, hstring_t *y);
 
@@ -105,17 +105,17 @@ HARRY_EXPORT uint64_t
     hstring_get (hstring_t *self, int pos);
 
 //  *** Draft method, for development use, may change without warning ***
-//  Perform a soundex transformation of each token.
-//
-//  Soundex code as implemented by Kevin Setter, 8/27/97 with some slight
+//  Perform a soundex transformation of each token.                       
+//                                                                        
+//  Soundex code as implemented by Kevin Setter, 8/27/97 with some slight 
 //  modifications. Known bugs: Consonants separated by a vowel are treated
-//  as one character, if they have the same index. This is wrong. :(
+//  as one character, if they have the same index. This is wrong. :(      
 HARRY_EXPORT void
     hstring_soundex (hstring_t *self);
 
 //  *** Draft method, for development use, may change without warning ***
 //  Compares two symbols/characters. Returns 0 if equal, < 0 if x smaller,
-//  > 0 if y smaller
+//  > 0 if y smaller                                                      
 HARRY_EXPORT int
     hstring_compare (hstring_t *x, int posx, hstring_t *y, int posy);
 

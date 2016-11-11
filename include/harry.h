@@ -45,6 +45,7 @@ typedef int cfg_int;
 #endif
 #endif
 
+//  TODO: remove these structs by placing them inside each class
 /*
  * Symbols for tokens. Note: Some measures enumerate all possible symbols.
  * These need to be patched first to support larger symbol sizes.
@@ -69,4 +70,33 @@ struct _hstring_t
     float label;              /**< Optional label of string */
 };
 
+/**
+ * Structure for measure interface
+ */
+typedef struct
+{
+    char *name;     // Name of measure
+    measures_config_fn *measure_config;      // Init function
+    measures_compare_fn *measure_compare;    // Comparison function
+} measures_func_t;
+
+typedef struct
+{
+    lnorm_t lnorm;
+    knorm_t knorm;
+    double cost_ins;
+    double cost_del;
+    double cost_sub;
+    double cost_tra;
+} measures_opts_t;
+
+struct _measures_t {
+    config_t *cfg;
+    measures_func_t *func;
+    measures_opts_t *opts;
+    cfg_int global_cache;
+    int idx;
+    int verbose;
+    int log_line;
+};
 #endif
