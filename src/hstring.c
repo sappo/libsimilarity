@@ -419,7 +419,8 @@ hstring_compare (hstring_t *x, int i, hstring_t *y, int j)
  * Read in and hash stop tokens
  * @param file stop token file
  */
-void stoptokens_load(const char *file)
+void
+hstring_stoptokens_load(const char *file)
 {
     char buf[1024];
     FILE *f;
@@ -524,7 +525,7 @@ hstring_preproc (hstring_t *self, measures_t *measure)
 /**
  * Destroy stop tokens table
  */
-void stoptokens_destroy()
+void hstring_stoptokens_destroy()
 {
     stoptoken_t *s;
 

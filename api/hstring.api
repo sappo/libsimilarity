@@ -116,12 +116,12 @@
         Print string object
     </method>
 
-    <method name = "stoptokens load">
+    <method name = "stoptokens load" singleton = "1">
         Reads stop tokens from file and hash them.
         <argument name = "filename" type = "string" />
     </method>
 
-    <method name = "stoptokens destroy">
+    <method name = "stoptokens destroy" singleton = "1">
         Destroys stop tokens table.
     </method>
 

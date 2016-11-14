@@ -127,12 +127,12 @@ HARRY_EXPORT void
 //  *** Draft method, for development use, may change without warning ***
 //  Reads stop tokens from file and hash them.
 HARRY_EXPORT void
-    hstring_stoptokens_load (hstring_t *self, const char *filename);
+    hstring_stoptokens_load (const char *filename);
 
 //  *** Draft method, for development use, may change without warning ***
 //  Destroys stop tokens table.
 HARRY_EXPORT void
-    hstring_stoptokens_destroy (hstring_t *self);
+    hstring_stoptokens_destroy (void);
 
 //  *** Draft method, for development use, may change without warning ***
 //  Self test of this class.
