@@ -9,7 +9,10 @@
     >
     <include filename = "license.xml" />
     <version major = "0" minor = "4" patch = "3" />
+
     <target name = "autotools" />
+    <target name = "cmake" />
+    <target name = "python" />
 
     <use project = "czmq" />
     <use project = "libconfig" prefix = "config" header = "libconfig.h"

@@ -69,7 +69,7 @@ measures_t *
 measures_new (const char *name)
 {
     assert (name);
-    if (measures_match (name) == 0)
+    if (measures_match (name) == -1)
         return NULL;
 
     int rc = 0;
@@ -132,9 +132,9 @@ measures_match(const char *name)
     }
 
     if (dist > 0) {
-        r = 0;
         warning("Unknown measure '%s'. Using '%s' instead.", name,
                 func[r].name);
+        return -1;
     }
 
     return r;
@@ -282,6 +282,7 @@ void
 measures_test (bool verbose)
 {
     printf (" * measures:\n");
+    dist_bag_test (verbose);
     dist_damerau_test (verbose);
     dist_levenshtein_test (verbose);
 }

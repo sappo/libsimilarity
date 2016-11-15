@@ -45,6 +45,19 @@
         string "Hey, I am here with Harry!", gets mapped to "H000 I000 A500
         H600 W300 H600".
 
+    * dist_bag:
+        This module implements the bag distance (see Bartolini et al., 2002).
+        The distance approximates and lower bounds the Levenshtein distance.
+        The runtime complexity of a comparison is linear in the length of the
+        strings. The following parameters are supported:
+
+        measures.dist_bag.norm = "none";
+            This parameter specifies the normalization of the distance.
+            Supported values are "none" for no normalization, "min" for
+            normalization on the minimum length, "max" for normalization on the
+            maximum length, "avg" for normalization on the average length of
+            the compared strings.
+
     * dist_damerau:
         This module implements the Damerau-Levenshtein distance (see Damerau,
         1964). The runtime and space complexity of a comparison is quadratic in

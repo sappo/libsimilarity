@@ -20,7 +20,6 @@
  * Approximate Distance.  String Processing and Information Retrieval, LNCS
  * 2476, 271-283, 2002.
  *
- * @{
  */
 
 /* Hash table */
@@ -31,22 +30,19 @@ typedef struct
     UT_hash_handle hh;  /**< uthash handle */
 } bag_t;
 
-/* Static variables */
-static lnorm_t n = LN_NONE;
-
-/* External variables */
-extern config_t cfg;
-
 /**
  * Initializes the similarity measure
  */
-void dist_bag_config()
+void
+dist_bag_config (measures_t *self)
 {
+    assert (self);
     const char *str;
+    measures_opts_t *opts = self->opts;
 
-    /* Normalization */
-    config_lookup_string(&cfg, "measures.dist_bag.norm", &str);
-    n = lnorm_get(str);
+    //  Apply normalization
+    config_lookup_string (self->cfg, "measures.dist_bag.norm", &str);
+    opts->lnorm = lnorm_get (str);
 }
 
 /**
@@ -54,7 +50,8 @@ void dist_bag_config()
  * @param x string
  * @return histogram
  */
-static bag_t *bag_create(hstring_t *x)
+static bag_t *
+bag_new (hstring_t *x)
 {
     bag_t *xh = NULL, *bag = NULL;
 
@@ -96,13 +93,16 @@ static void bag_destroy(bag_t * xh)
  * @param y second string
  * @return Bag distance
  */
-float dist_bag_compare(measures_t *self, hstring_t *x, hstring_t *y)
+float
+dist_bag_compare (measures_t *self, hstring_t *x, hstring_t *y)
 {
+    assert (self);
     float xd = 0, yd = 0;
     bag_t *xh, *yh, *xb, *yb;
+    measures_opts_t *opts = self->opts;
 
-    xh = bag_create(x);
-    yh = bag_create(y);
+    xh = bag_new (x);
+    yh = bag_new (y);
 
     int missing = y->len;
     for (xb = xh; xb != NULL; xb = (bag_t *) xb->hh.next) {
@@ -118,10 +118,102 @@ float dist_bag_compare(measures_t *self, hstring_t *x, hstring_t *y)
     }
     yd += missing;
 
-    bag_destroy(xh);
-    bag_destroy(yh);
+    bag_destroy (xh);
+    bag_destroy (yh);
 
-    return lnorm(n, fmax(xd, yd), x, y);
+    return lnorm (opts->lnorm, fmax(xd, yd), x, y);
 }
 
-/** @} */
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+/*
+ * Structure for testing string kernels/distances
+ */
+struct hstring_test
+{
+    char *x;            /**< String x */
+    char *y;            /**< String y */
+    char *delim;        /**< Delimiter string */
+    float v;            /**< Expected output */
+};
+
+struct hstring_test tests[] = {
+    /* Comparison using bytes */
+    {"", "", "", 0},
+    {"a", "", "", 1},
+    {"", "a", "", 1},
+    {"a", "a", "", 0},
+    {"ab", "ba", "", 0},
+    {"bab", "ba", "", 1},
+    {"abba", "babb", "", 1},
+    {"a.b", "a.c", "", 1},
+    {".a.b.", "a..c.", "", 1},
+    /* Comparison using tokens */
+    {"", "", ".", 0},
+    {"a", "", ".", 1},
+    {"", "a", ".", 1},
+    {"a", "a", ".", 0},
+    {"ab", "ba", ".", 1},
+    {"bab", "ba", ".", 1},
+    {"abba", "babb", ".", 1},
+    {"a.b", "a.c", ".", 1},
+    {".a.b.", "a..c.", ".", 1},
+    /* Further test cases */
+    {"abcd", "axcy", "", 2},
+    {"abc", "axcy", "", 2},
+    {"abcd", "xcy", "", 3},
+    {".x.y.", ".x.y.", ".", 0},
+    {"x...y..", "...x..y", ".", 0},
+    {".x.y", "x.y.", ".", 0},
+    /* Examples from paper by Bartolini et al. */
+    {"spire", "fare", "", 3},
+    {"fare", "spire", "", 3},
+    {"spire", "paris", "", 1},
+    {"paris", "spire", "", 1},
+    {NULL}
+};
+
+void
+dist_bag_test (bool verbose)
+{
+    printf("    Bag distance:");
+
+    //  @selftest
+    int i, err = FALSE;
+    hstring_t *x, *y;
+    measures_t *bag = measures_new ("dist_bag");
+    assert (bag);
+
+    for (i = 0; tests[i].x && !err; i++) {
+        x = hstring_new (tests[i].x);
+        y = hstring_new (tests[i].y);
+
+        if (strlen(tests[i].delim) == 0)
+            measures_config_set_string (bag, "measures.granularity", "bytes");
+        else
+            measures_config_set_string (bag, "measures.granularity", "tokens");
+
+        hstring_delim_set (tests[i].delim);
+
+        hstring_preproc (x, bag);
+        hstring_preproc (y, bag);
+
+        float d = measures_compare (bag, x, y);
+        double diff = fabs(tests[i].v - d);
+
+        if (diff > 1e-6) {
+            printf ("Error %f != %f\n", d, tests[i].v);
+            hstring_print (x);
+            hstring_print (y);
+            err = TRUE;
+        }
+
+        hstring_destroy(&x);
+        hstring_destroy(&y);
+    }
+    measures_destroy (&bag);
+    //  @end
+
+    printf(" OK\n");
+}
