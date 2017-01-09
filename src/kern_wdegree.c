@@ -144,4 +144,14 @@ float kern_wdegree_compare(measures_t *self, hstring_t *x, hstring_t *y)
     return knorm(self, k, x, y, kernel);
 }
 
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+kern_wdegree_test (bool verbose)
+{
+    printf (" * kern_wdegree: SKIP.\n");
+}
 /** @} */

@@ -15,5 +15,6 @@
 /* Module interface */
 void kern_subsequence_config();
 float kern_subsequence_compare(measures_t *, hstring_t *, hstring_t *);
+void kern_subsequence_test (bool verbose);
 
 #endif /* KERN_SUBSEQUENCE_H */

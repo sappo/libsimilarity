@@ -246,7 +246,7 @@ static struct hstring_test tests[] = {
 void
 dist_damerau_test (bool verbose)
 {
-    printf("    Damerau-Levenshtein distance:");
+    printf(" * Damerau-Levenshtein distance:");
 
     //  @selftest
     int i, err = FALSE;

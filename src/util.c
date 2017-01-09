@@ -415,7 +415,7 @@ void
 util_test (bool verbose)
 {
     printf (" * util: ");
-    printf ("OK\n");
+    printf ("SKIP\n");
 }
 
 /** @} */

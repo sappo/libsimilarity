@@ -28,15 +28,20 @@ noinst_PROGRAMS =
 check_PROGRAMS =
 noinst_LTLIBRARIES =
 TESTS =
+EXTRA_DIST =
 
-EXTRA_DIST = \
-    CMakeLists.txt \
+if ENABLE_DIST_CMAKEFILES
+EXTRA_DIST += \
     Findlibzmq.cmake \
     Findczmq.cmake \
     Findlibconfig.cmake \
     Findzlib.cmake \
     Findlibarchive.cmake \
     Findmath.cmake \
+    CMakeLists.txt
+endif
+
+EXTRA_DIST += \
     src/md5.h \
     src/murmur.h \
     src/rwlock.h \

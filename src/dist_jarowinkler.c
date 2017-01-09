@@ -251,4 +251,14 @@ float dist_jarowinkler_compare(measures_t *self, hstring_t *x, hstring_t *y)
     return d - l * scaling * d;
 }
 
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+dist_jarowinkler_test (bool verbose)
+{
+    printf (" * dist_jarowinkler: SKIP.\n");
+}
 /** @} */

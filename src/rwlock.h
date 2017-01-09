@@ -6,7 +6,7 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  */
 
 #ifndef RWLOCK_H
@@ -40,5 +40,6 @@ void rwlock_set_rlock(rwlock_t *rw);
 void rwlock_unset_rlock(rwlock_t *rw);
 void rwlock_set_wlock(rwlock_t *rw);
 void rwlock_unset_wlock(rwlock_t *rw);
+void rwlock_test (bool verbose);
 
 #endif

@@ -89,6 +89,12 @@ typedef struct _measures_t measures_t;
 #include "measures.h"
 #endif // HARRY_BUILD_DRAFT_API
 
+#ifdef HARRY_BUILD_DRAFT_API
+//  Self test for private classes
+HARRY_EXPORT void
+    harry_private_selftest (bool verbose);
+#endif // HARRY_BUILD_DRAFT_API
+
 #endif
 /*
 ################################################################################

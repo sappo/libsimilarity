@@ -138,7 +138,7 @@ struct hstring_test
     float v;            /**< Expected output */
 };
 
-struct hstring_test tests[] = {
+static struct hstring_test tests[] = {
     /* Comparison using bytes */
     {"", "", "", 0},
     {"a", "", "", 1},
@@ -177,7 +177,7 @@ struct hstring_test tests[] = {
 void
 dist_bag_test (bool verbose)
 {
-    printf("    Bag distance:");
+    printf(" * Bag distance:");
 
     //  @selftest
     int i, err = FALSE;

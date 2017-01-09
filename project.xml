@@ -12,7 +12,7 @@
 
     <target name = "autotools" />
     <target name = "cmake" />
-    <target name = "python" />
+    <target name = "python_cffi2" />
 
     <use project = "czmq" />
     <use project = "libconfig" prefix = "config" header = "libconfig.h"

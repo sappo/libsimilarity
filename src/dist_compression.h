@@ -15,5 +15,7 @@
 /* Module interface */
 void dist_compression_config();
 float dist_compression_compare(measures_t *, hstring_t *, hstring_t *);
+void
+    dist_compression_test (bool verbose);
 
 #endif /* DIST_COMPRESSION_H */

@@ -88,6 +88,7 @@ typedef struct
     double cost_del;
     double cost_sub;
     double cost_tra;
+    cfg_int level;
 } measures_opts_t;
 
 struct _measures_t {

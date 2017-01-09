@@ -94,4 +94,13 @@ float dist_kernel_compare(measures_t *self, hstring_t *x, hstring_t *y)
     return squared ? d : sqrt(d);
 }
 
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+dist_kernel_test (bool verbose)
+{
+    printf (" * dist_kernel: SKIP.\n");
+}
 /** @} */

@@ -35,4 +35,5 @@ void MD5Update(struct MD5Context *context, unsigned char const *buf,
 void MD5Final(unsigned char digest[16], struct MD5Context *context);
 void MD5Transform(uint32_t buf[4], uint32_t const in[16]);
 
+void md5_test (bool verbose);
 #endif

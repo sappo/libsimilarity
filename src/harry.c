@@ -390,7 +390,7 @@ static void harry_init()
         config_fprint(stderr, &cfg);
 
     /* Init value cache */
-    vcache_init();
+    vcache_init(&cfg);
 
     /* Configure module (init as first) */
     config_lookup_string(&cfg, "measures.measure", &cfg_str);

@@ -111,4 +111,14 @@ float dist_osa_compare(measures_t *self, hstring_t *x, hstring_t *y)
     return lnorm(n, m, x, y);
 }
 
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+dist_osa_test (bool verbose)
+{
+    printf (" * dist_osa: SKIP.\n");
+}
 /** @} */

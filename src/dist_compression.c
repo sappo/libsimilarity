@@ -21,17 +21,16 @@
  * @{
  */
 
-/* External variables */
-extern config_t cfg;
-static cfg_int level = 0;
-
 /**
  * Initializes the similarity measure
  */
-void dist_compression_config()
+void
+dist_compression_config (measures_t *self)
 {
+    assert(self);
+    measures_opts_t *opts = self->opts;
     /* Configuration */
-    config_lookup_int(&cfg, "measures.dist_compression.level", &level);
+    config_lookup_int (self->cfg, "measures.dist_compression.level", &opts->level);
 }
 
 
@@ -41,7 +40,7 @@ void dist_compression_config()
  * @return length of the compressed data
  */
 static float
-compress_str1 (hstring_t *x)
+compress_str1 (measures_t *self, hstring_t *x)
 {
     unsigned long tmp, width;
     unsigned char *dst;
@@ -55,7 +54,7 @@ compress_str1 (hstring_t *x)
         return -1;
     }
 
-    compress2(dst, &tmp, (const Bytef *) x->str.c, x->len * width, level);
+    compress2(dst, &tmp, (const Bytef *) x->str.c, x->len * width, self->opts->level);
 
     free(dst);
     return (float) tmp;
@@ -68,7 +67,7 @@ compress_str1 (hstring_t *x)
  * @return length of the compressed data.
  */
 static float
-compress_str2 (hstring_t *x, hstring_t *y)
+compress_str2 (measures_t *self, hstring_t *x, hstring_t *y)
 {
     unsigned long tmp, width;
     unsigned char *src, *dst;
@@ -89,7 +88,7 @@ compress_str2 (hstring_t *x, hstring_t *y)
     memcpy(src, y->str.s, y->len * width);
     memcpy(src + y->len * width, x->str.s, x->len * width);
 
-    compress2(dst, &tmp, src, (x->len + y->len) * width, level);
+    compress2(dst, &tmp, src, (x->len + y->len) * width, self->opts->level);
 
     free(dst);
     free(src);
@@ -111,25 +110,25 @@ float dist_compression_compare (measures_t *self, hstring_t *x, hstring_t *y)
 
     xk = hstring_hash1(x);
     if (!vcache_load(xk, &xl, ID_DIST_COMPRESS)) {
-        xl = compress_str1(x);
+        xl = compress_str1(self, x);
         vcache_store(xk, xl, ID_DIST_COMPRESS);
     }
 
     yk = hstring_hash1(y);
     if (!vcache_load(yk, &yl, ID_DIST_COMPRESS)) {
-        yl = compress_str1(y);
+        yl = compress_str1(self, y);
         vcache_store(yk, yl, ID_DIST_COMPRESS);
     }
 
     xyk = hstring_hash2(x, y);
     if (!vcache_load(xyk, &xyl, ID_DIST_COMPRESS)) {
-        xyl = compress_str2(x, y);
+        xyl = compress_str2(self, x, y);
         vcache_store(xyk, xyl, ID_DIST_COMPRESS);
     }
 
     yxk = hstring_hash2(y, x);
     if (!vcache_load(yxk, &yxl, ID_DIST_COMPRESS)) {
-        yxl = compress_str2(y, x);
+        yxl = compress_str2(self, y, x);
         vcache_store(yxk, yxl, ID_DIST_COMPRESS);
     }
 
@@ -137,4 +136,66 @@ float dist_compression_compare (measures_t *self, hstring_t *x, hstring_t *y)
     return (0.5 * (xyl + yxl) - fmin(xl, yl)) / fmax(xl, yl);
 }
 
-/** @} */
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+/*
+ * Structure for testing string kernels/distances
+ */
+struct hstring_test
+{
+    char *x;            /**< String x */
+    char *y;            /**< String y */
+    float v;            /**< Expected output */
+};
+
+static struct hstring_test tests[] = {
+    {"", "abc", 0.272727},
+    {"abc", "", 0.272727},
+    {"abc", "abc", 0.272727},
+    {"dslgjasldjfkasdjlkf", "dslkfjasldkf", 0.518519},
+    {"kasjhdgkjad", "kasjhdgkjad", 0.105263},
+    {"fkjhskljfhalsdkfhalksjdfhsdf", "djfh", 0.727273},
+    {"fkjhskljfhalsdkfhalksjdfhsdf", "", 0.757576},
+    {"", "fkjhskljfhalsdkfhalksjdfhsdf", 0.757576},
+    {"6s6sd7as6d", "7sad8asd76", 0.444444},
+    {"aaaaaaaaaa", "bbbbbbbbb", 0.272727},
+    {NULL}
+};
+
+void
+dist_compression_test (bool verbose)
+{
+    printf(" * Compression distance:");
+
+    //  @selftest
+    int i, err = FALSE;
+    hstring_t *x, *y;
+    measures_t *compression = measures_new ("dist_compression");
+    assert (compression);
+
+    for (i = 0; tests[i].x && !err; i++) {
+        x = hstring_new (tests[i].x);
+        y = hstring_new (tests[i].y);
+
+        hstring_preproc (x, compression);
+        hstring_preproc (y, compression);
+
+        float d = measures_compare (compression, x, y);
+        double diff = fabs (tests[i].v - d);
+
+        if (diff > 1e-6) {
+            printf("Error %f != %f\n", d, tests[i].v);
+            hstring_print (x);
+            hstring_print (y);
+            err = TRUE;
+        }
+
+        hstring_destroy (&x);
+        hstring_destroy (&y);
+    }
+    measures_destroy (&compression);
+    //  @end
+    //
+    printf(" OK.\n");
+}

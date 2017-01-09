@@ -6,7 +6,7 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 3 of the License, or (at your
  * option) any later version.  This program is distributed without any
- * warranty. See the GNU General Public License for more details. 
+ * warranty. See the GNU General Public License for more details.
  */
 
 #ifndef VCACHE_H
@@ -26,12 +26,13 @@ typedef struct
     float val;          /**< Cached similarity value */
 } entry_t;
 
-void vcache_init();
+void vcache_init(config_t *cfg);
 int vcache_load(uint64_t key, float *value, int);
 int vcache_store(uint64_t key, float value, int);
 void vcache_info();
 void vcache_destroy();
 float vcache_get_hitrate();
 float vcache_get_used();
+void vcache_test (bool verbose);
 
 #endif

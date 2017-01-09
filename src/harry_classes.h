@@ -147,6 +147,10 @@ HARRY_PRIVATE void
 HARRY_PRIVATE void
     sim_coefficient_test (bool verbose);
 
+//  Self test for private classes
+HARRY_PRIVATE void
+    harry_private_selftest (bool verbose);
+
 #endif // HARRY_BUILD_DRAFT_API
 
 #endif

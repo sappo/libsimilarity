@@ -27,10 +27,14 @@ typedef struct {
 static test_item_t
 all_tests [] = {
 #ifdef HARRY_BUILD_DRAFT_API
+// Tests for draft public classes:
     { "util", util_test },
     { "hstring", hstring_test },
     { "norm", norm_test },
     { "measures", measures_test },
+#endif // HARRY_BUILD_DRAFT_API
+#ifdef HARRY_BUILD_DRAFT_API
+    { "private_classes", harry_private_selftest },
 #endif // HARRY_BUILD_DRAFT_API
     {0, 0}          //  Sentinel
 };
@@ -96,30 +100,11 @@ main (int argc, char **argv)
         if (streq (argv [argn], "--list")
         ||  streq (argv [argn], "-l")) {
             puts ("Available tests:");
-            puts ("    md5");
-            puts ("    murmur");
-            puts ("    rwlock");
-            puts ("    util");
-            puts ("    vcache");
-            puts ("    hstring");
-            puts ("    hmatrix");
-            puts ("    hconfig");
-            puts ("    kern_distance");
-            puts ("    kern_subsequence");
-            puts ("    kern_spectrum");
-            puts ("    kern_wdegree");
-            puts ("    dist_bag");
-            puts ("    dist_compression");
-            puts ("    dist_damerau");
-            puts ("    dist_hamming");
-            puts ("    dist_jarowinkler");
-            puts ("    dist_kernel");
-            puts ("    dist_lee");
-            puts ("    dist_levenshtein");
-            puts ("    dist_osa");
-            puts ("    norm");
-            puts ("    sim_coefficient");
-            puts ("    measures");
+            puts ("    util\t\t- draft");
+            puts ("    hstring\t\t- draft");
+            puts ("    norm\t\t- draft");
+            puts ("    measures\t\t- draft");
+            puts ("    private_classes\t- draft");
             return 0;
         }
         else

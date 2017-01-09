@@ -70,8 +70,8 @@ static default_t defaults[] = {
     {M ".kern_wdegree", "norm", CONFIG_TYPE_STRING, {.str = "none"}},
     {M ".kern_distance", "dist", CONFIG_TYPE_STRING, {.str = "dist_bag"}},
     {M ".kern_distance", "type", CONFIG_TYPE_STRING, {.str = "linear"}},
-    {M ".kern_distance", "gamma", CONFIG_TYPE_INT, {.flt = 1.0}},
-    {M ".kern_distance", "degree", CONFIG_TYPE_INT, {.flt = 1.0}},
+    {M ".kern_distance", "gamma", CONFIG_TYPE_FLOAT, {.flt = 1.0}},
+    {M ".kern_distance", "degree", CONFIG_TYPE_FLOAT, {.flt = 1.0}},
     {M ".kern_distance", "norm", CONFIG_TYPE_STRING, {.str = "none"}},
     {M ".kern_subsequence", "length", CONFIG_TYPE_INT, {.num = 3}},
     {M ".kern_subsequence", "lambda", CONFIG_TYPE_FLOAT, {.flt = 0.1}},
@@ -273,6 +273,17 @@ int config_check(config_t * cfg)
     }
 
     return 1;
+}
+
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+hconfig_test (bool verbose)
+{
+    printf (" * hconfig: SKIP.\n");
 }
 
 /** @} */

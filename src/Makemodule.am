@@ -56,6 +56,11 @@ src_libharry_la_SOURCES += \
 
 endif
 
+if ENABLE_DRAFTS
+src_libharry_la_SOURCES += \
+    src/harry_private_selftest.c
+endif
+
 src_libharry_la_CPPFLAGS = ${AM_CPPFLAGS}
 
 src_libharry_la_LDFLAGS = \

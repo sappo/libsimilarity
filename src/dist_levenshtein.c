@@ -361,7 +361,7 @@ static struct hstring_test tests[] = {
 void
 dist_levenshtein_test (bool verbose)
 {
-    printf("    Levenshtein distance:");
+    printf(" * Levenshtein distance:");
 
     //  @selftest
     int i, err = FALSE;

@@ -254,4 +254,13 @@ float sim_otsuka_compare(measures_t *self, hstring_t *x, hstring_t *y)
 }
 
 
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+sim_coefficient_test (bool verbose)
+{
+    printf (" * sim_coefficient: SKIP.\n");
+}
 /** @} */

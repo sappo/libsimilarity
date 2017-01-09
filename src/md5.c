@@ -341,3 +341,15 @@ void MD5Transform(uint32_t buf[4], uint32_t const in[16])
 }
 
 #endif
+
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+md5_test (bool verbose)
+{
+    printf (" * md5: SKIP.\n");
+}
+

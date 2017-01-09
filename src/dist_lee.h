@@ -15,5 +15,6 @@
 /* Module interface */
 void dist_lee_config();
 float dist_lee_compare(measures_t *, hstring_t *, hstring_t *);
+void dist_lee_test (bool verbose);
 
 #endif /* DIST_LEE_H */

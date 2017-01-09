@@ -15,5 +15,6 @@
 /* Module interface */
 void dist_hamming_config();
 float dist_hamming_compare(measures_t *, hstring_t *, hstring_t *);
+void dist_hamming_test (bool verbose);
 
 #endif /* DIST_HAMMING_H */

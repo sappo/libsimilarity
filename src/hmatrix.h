@@ -141,4 +141,5 @@ void hmatrix_destroy(hmatrix_t *);
 float hmatrix_benchmark(hmatrix_t *, hstring_t *,
                         double (*measure) (hstring_t, hstring_t), double);
 
+void hmatrix_test (bool verbose);
 #endif /* HMATRIX_H */

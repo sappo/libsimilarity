@@ -60,7 +60,7 @@ void kern_distance_config(measures_t *self)
     }
 
     /* Parameters */
-    config_lookup_float(self->cfg, "measures.kern_distance.fgamma", &fgamma);
+    config_lookup_float(self->cfg, "measures.kern_distance.gamma", &fgamma);
     config_lookup_float(self->cfg, "measures.kern_distance.degree", &degree);
 
     /* Normalization */
@@ -147,6 +147,17 @@ float kern_distance_compare(measures_t *self, hstring_t *x, hstring_t *y)
     assert (self);
     float k = kernel(self, x, y);
     return knorm(self, k, x, y, kernel);
+}
+
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+kern_distance_test (bool verbose)
+{
+    printf (" * kern_distance: SKIP.\n");
 }
 
 /** @} */

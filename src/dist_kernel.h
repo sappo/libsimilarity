@@ -15,5 +15,6 @@
 /* Module interface */
 void dist_kernel_config(measures_t *);
 float dist_kernel_compare(measures_t *, hstring_t *, hstring_t *);
+void dist_kernel_test (bool verbose);
 
 #endif /* DIST_KERNEL_H */

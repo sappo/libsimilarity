@@ -693,7 +693,7 @@ void
 hstring_test (bool verbose)
 {
     printf (" * hstring: ");
-    printf ("OK\n");
+    printf ("SKIP\n");
 }
 
 /** @} */

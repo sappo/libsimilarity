@@ -124,3 +124,14 @@ uint64_t MurmurHash64B(const void *key, int32_t len, uint32_t seed)
 
     return h;
 }
+
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+murmur_test (bool verbose)
+{
+    printf (" * murmur: SKIP.\n");
+}

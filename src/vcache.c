@@ -11,9 +11,6 @@
 
 #include "harry_classes.h"
 
-/* External variables */
-extern config_t cfg;
-
 /* Cache structure */
 static entry_t *cache = NULL;
 static long space = 0;
@@ -36,10 +33,10 @@ static rwlock_t rwlock;
 /**
  * Init value cache
  */
-void vcache_init()
+void vcache_init(config_t *cfg)
 {
     cfg_int csize;
-    config_lookup_int(&cfg, "measures.cache_size", &csize);
+    config_lookup_int(cfg, "measures.cache_size", &csize);
 
     /* Initialize cache stats */
     space = floor((csize * 1024 * 1024) / sizeof(entry_t));
@@ -157,4 +154,14 @@ void vcache_destroy()
     free(cache);
 }
 
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+vcache_test (bool verbose)
+{
+    printf (" * vcache: SKIP.\n");
+}
 /** @} */

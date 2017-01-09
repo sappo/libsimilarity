@@ -129,4 +129,14 @@ float kern_subsequence_compare(measures_t *self, hstring_t *x, hstring_t *y)
     return knorm(self, k, x, y, kernel);
 }
 
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+kern_subsequence_test (bool verbose)
+{
+    printf (" * kern_subsequence: SKIP.\n");
+}
 /** @} */

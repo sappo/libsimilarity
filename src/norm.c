@@ -122,7 +122,7 @@ void
 norm_test (bool verbose)
 {
     printf (" * norm: ");
-    printf ("OK\n");
+    printf ("SKIP\n");
 }
 
 /** @} */

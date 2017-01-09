@@ -15,5 +15,6 @@
 /* Module interface */
 void dist_osa_config();
 float dist_osa_compare(measures_t *, hstring_t *, hstring_t *);
+void dist_osa_test (bool verbose);
 
 #endif /* DIST_OSA_H */

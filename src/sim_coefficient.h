@@ -42,4 +42,5 @@ float sim_kulczynski_compare(measures_t *, hstring_t *x, hstring_t *y);
 #define sim_otsuka_config sim_coefficient_config
 float sim_otsuka_compare(measures_t *, hstring_t *x, hstring_t *y);
 
+void sim_coefficient_test (bool verbose);
 #endif /* SIM_COEFFICIENTS_H */

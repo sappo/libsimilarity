@@ -31,12 +31,12 @@ AC_SUBST(PACKAGE_VERSION)
 #
 # Libtool -version-info (ABI version)
 #
-# Currently 2.0.1 ("stable"). Don't change this unless you
+# Currently 0:0:0 ("stable"). Don't change this unless you
 # know exactly what you're doing and have read and understand
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
 #
 # libharry -version-info
-LTVER="0:4:0"
+LTVER="0:0:0"
 AC_SUBST(LTVER)
 
 # Capture c flags
@@ -82,6 +82,7 @@ PKG_CHECK_MODULES([libzmq], [libzmq >= 0.0.0],
         PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $libzmq_LIBS"
     ],
     [
+        AC_MSG_NOTICE([Package libzmq not found; falling back to defined compilability tests])
         AC_ARG_WITH([libzmq],
             [
                 AS_HELP_STRING([--with-libzmq],
@@ -129,6 +130,7 @@ PKG_CHECK_MODULES([czmq], [libczmq >= 0.0.0],
         PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $czmq_LIBS"
     ],
     [
+        AC_MSG_NOTICE([Package libczmq not found; falling back to defined compilability tests])
         AC_ARG_WITH([libczmq],
             [
                 AS_HELP_STRING([--with-libczmq],
@@ -150,7 +152,7 @@ PKG_CHECK_MODULES([czmq], [libczmq >= 0.0.0],
         fi
 
 
-        AC_CHECK_LIB([czmq], [zctx_test],
+        AC_CHECK_LIB([czmq], [zhashx_test],
             [
                 CFLAGS="${czmq_synthetic_cflags} ${CFLAGS}"
                 LDFLAGS="${czmq_synthetic_libs} ${LDFLAGS}"
@@ -176,7 +178,40 @@ PKG_CHECK_MODULES([libconfig], [libconfig >= 1.4.0],
         PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $libconfig_LIBS"
     ],
     [
-        AC_MSG_ERROR([Cannot find libconfig 1.4.0 or higher])
+        AC_MSG_NOTICE([Package libconfig not found with needed constraints; falling back to defined compilability tests])
+        AC_ARG_WITH([libconfig],
+            [
+                AS_HELP_STRING([--with-libconfig],
+                [Specify libconfig prefix])
+            ],
+            [search_libconfig="yes"],
+            [])
+
+        libconfig_synthetic_cflags=""
+        libconfig_synthetic_libs="-lconfig"
+
+        if test "x$search_libconfig" = "xyes"; then
+            if test -r "${with_libconfig}/include/libconfig.h"; then
+                libconfig_synthetic_cflags="-I${with_libconfig}/include"
+                libconfig_synthetic_libs="-L${with_libconfig}/lib -lconfig"
+            else
+                AC_MSG_ERROR([${with_libconfig}/include/libconfig.h not found. Please check libconfig prefix])
+            fi
+        fi
+
+
+        AC_CHECK_LIB([config], [config_init],
+            [
+                CFLAGS="${libconfig_synthetic_cflags} ${CFLAGS}"
+                LDFLAGS="${libconfig_synthetic_libs} ${LDFLAGS}"
+                LIBS="${libconfig_synthetic_libs} ${LIBS}"
+
+                AC_SUBST([libconfig_CFLAGS],[${libconfig_synthetic_cflags}])
+                AC_SUBST([libconfig_LIBS],[${libconfig_synthetic_libs}])
+                was_libconfig_check_lib_detected=yes
+                PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE -lconfig"
+            ],
+            [AC_MSG_ERROR([cannot link with -lconfig, install libconfig])])
     ])
 
 if test "x$was_libconfig_check_lib_detected" = "xno"; then
@@ -191,6 +226,7 @@ PKG_CHECK_MODULES([zlib], [zlib >= 0.0.0],
         PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $zlib_LIBS"
     ],
     [
+        AC_MSG_NOTICE([Package zlib not found; falling back to defined compilability tests])
         AC_ARG_WITH([zlib],
             [
                 AS_HELP_STRING([--with-zlib],
@@ -239,6 +275,7 @@ PKG_CHECK_MODULES([libarchive], [libarchive >= 0.0.0],
         PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $libarchive_LIBS"
     ],
     [
+        AC_MSG_NOTICE([Package libarchive not found; falling back to defined compilability tests])
         AC_ARG_WITH([libarchive],
             [
                 AS_HELP_STRING([--with-libarchive],
@@ -287,6 +324,7 @@ PKG_CHECK_MODULES([math], [math >= 0.0.0],
         PKGCFG_LIBS_PRIVATE="$PKGCFG_LIBS_PRIVATE $math_LIBS"
     ],
     [
+        AC_MSG_NOTICE([Package math not found; falling back to defined compilability tests])
         AC_ARG_WITH([math],
             [
                 AS_HELP_STRING([--with-math],
@@ -396,6 +434,8 @@ case "${host_os}" in
     *solaris*)
         # Define on Solaris to enable all library features
         CPPFLAGS="-D_PTHREADS $CPPFLAGS"
+        # Allow definitions of common OS-provided functions that are not in old standards
+        CPPFLAGS="-D__EXTENSIONS__ $CPPFLAGS"
         AC_DEFINE(HARRY_HAVE_SOLARIS, 1, [Have Solaris OS])
         CFLAGS="${CFLAGS} -lsocket -lssp"
         ;;
@@ -504,6 +544,19 @@ AM_CONDITIONAL(ON_GNU, test "x$harry_on_gnu" = "xyes")
 AM_CONDITIONAL(INSTALL_MAN, test "x$harry_install_man" = "xyes")
 AM_CONDITIONAL(BUILD_DOC, test "x$harry_build_doc" = "xyes")
 
+AC_ARG_ENABLE([dist_cmakefiles],
+    AS_HELP_STRING([--enable-dist_cmakefiles],
+        [Distribute CMakeLists.txt and related files [default depends: on if present and not cross compiling]]),
+    [enable_dist_cmakefiles=$enableval],
+    [AC_MSG_CHECKING([for presence of CMake recipes])
+if test "x$cross_compiling" = "xyes"; then
+     enable_dist_cmakefiles=no
+else
+     AC_CHECK_FILE($srcdir/CMakeLists.txt, [enable_dist_cmakefiles=yes], [enable_dist_cmakefiles=no])
+fi
+     AC_MSG_RESULT([$enable_dist_cmakefiles])])
+AM_CONDITIONAL(ENABLE_DIST_CMAKEFILES, test "x$enable_dist_cmakefiles" = "xyes")
+
 # Check for harry_selftest intent
 AC_ARG_ENABLE([harry_selftest],
     AS_HELP_STRING([--enable-harry_selftest],
@@ -538,6 +591,33 @@ else
     AC_MSG_NOTICE([Building stable and legacy API (no draft API)])
     AC_SUBST(pkg_config_defines, "")
 fi
+
+AC_ARG_ENABLE([Werror],
+    AS_HELP_STRING([--enable-Werror],
+        [Add -Wall -Werror to GCC/GXX arguments [default=no; default=auto if nothing specified]]),
+    [AS_IF([test -n "$enableval"], [enable_Werror=$enableval], [enable_Werror=auto])],
+    [enable_Werror=no])
+
+AS_IF([test "x$enable_Werror" = "xyes" || test "x$enable_Werror" = "xauto"],
+    [AS_IF([test -n "$CC"],[AS_IF([$CC --version 2>&1 | grep 'Free Software Foundation' > /dev/null],
+        [AC_MSG_NOTICE([Enabling pedantic errors for GNU C])
+         CFLAGS="$CFLAGS -Wall -Werror"],
+        [AC_MSG_NOTICE([Not enabling pedantic errors: compiler not supported by this recipe (not GNU C)])
+         AS_IF([test "x$enable_Werror" = "xyes"], [AC_MSG_ERROR([--enable-Werror=yes was requested and can not be satisfied for C: $CC])])
+        ])])
+     AS_IF([test -n "$CXX"],[AS_IF([$CXX --version 2>&1 | grep 'Free Software Foundation' > /dev/null],
+        [AC_MSG_NOTICE([Enabling pedantic errors for GNU C++])
+         CXXFLAGS="$CXXFLAGS -Wall -Werror"],
+        [AC_MSG_NOTICE([Not enabling pedantic errors: compiler not supported by this recipe (not GNU C++)])
+         AS_IF([test "x$enable_Werror" = "xyes"], [AC_MSG_ERROR([--enable-Werror=yes was requested and can not be satisfied for C++: $CXX])])
+        ])])
+     AS_IF([test -n "$CPP"],[AS_IF([$CPP --version 2>&1 | grep 'Free Software Foundation' > /dev/null],
+        [AC_MSG_NOTICE([Enabling pedantic errors for GNU CPP preprocessor])
+         CPPFLAGS="$CPPFLAGS -Wall -Werror"],
+        [AC_MSG_NOTICE([Not enabling pedantic errors: preprocessor not supported by this recipe (not GNU CPP)])
+         AS_IF([test "x$enable_Werror" = "xyes"], [AC_MSG_ERROR([--enable-Werror=yes was requested and can not be satisfied for CPP: $CPP])])
+        ])])
+])
 
 # Specify output files
 AC_CONFIG_FILES([Makefile
@@ -579,6 +659,8 @@ echo Package version............... : $PACKAGE-$VERSION
 echo
 echo C compiler.................... : $CC
 echo C compiler flags.............. : $CFLAGS
+echo C++ compiler.................. : $CXX
+echo C++ compiler flags............ : $CXXFLAGS
 echo Configure date................ : $BUILD_DATE
 echo Build architecture............ : $BUILD_ARCH
 echo Build docs.................... : $harry_build_doc
@@ -600,7 +682,7 @@ echo
 echo '##########################################################################'
 
 echo
-echo Configure complete! Now procced with:
+echo Configure complete! Now proceed with:
 echo "    - 'make'               compile the project"
 echo "    - 'make check'         run the project's selftest"
 echo "    - 'make install'       install the project to $prefix"

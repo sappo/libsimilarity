@@ -112,4 +112,14 @@ void rwlock_unset_wlock(rwlock_t *rw)
 #endif
 }
 
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+rwlock_test (bool verbose)
+{
+    printf (" * rwlock: SKIP.\n");
+}
 /** @} */

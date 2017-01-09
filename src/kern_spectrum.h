@@ -15,5 +15,6 @@
 /* Module interface */
 void kern_spectrum_config();
 float kern_spectrum_compare(measures_t *, hstring_t *, hstring_t *);
+void kern_spectrum_test (bool verbose);
 
 #endif /* KERN_SPECTRUM_H */

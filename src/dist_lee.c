@@ -69,4 +69,14 @@ float dist_lee_compare(measures_t *self, hstring_t *x, hstring_t *y)
     return d;
 }
 
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+dist_lee_test (bool verbose)
+{
+    printf (" * dist_lee: SKIP.\n");
+}
 /** @} */

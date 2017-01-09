@@ -63,4 +63,14 @@ float dist_hamming_compare(measures_t *self, hstring_t *x, hstring_t *y)
     return lnorm(n, d, x, y);
 }
 
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+dist_hamming_test (bool verbose)
+{
+    printf (" * dist_hamming: SKIP.\n");
+}
 /** @} */

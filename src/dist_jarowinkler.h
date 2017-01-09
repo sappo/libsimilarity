@@ -20,5 +20,6 @@ float dist_jarowinkler_compare(measures_t *, hstring_t *, hstring_t *);
 #define dist_jaro_config dist_jarowinkler_config
 float dist_jaro_compare(measures_t *, hstring_t *, hstring_t *);
 
+void dist_jarowinkler_test (bool verbose);
 
 #endif /* DIST_JAROWINKLER_H */

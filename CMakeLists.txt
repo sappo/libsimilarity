@@ -227,6 +227,12 @@ IF (ENABLE_DRAFTS)
     )
 ENDIF (ENABLE_DRAFTS)
 
+IF (ENABLE_DRAFTS)
+    list (APPEND harry_sources
+        src/harry_private_selftest.c
+    )
+ENDIF (ENABLE_DRAFTS)
+
 source_group("Source Files" FILES ${harry_sources})
 if (NOT DEFINED BUILD_SHARED_LIBS)
     SET(BUILD_SHARED_LIBS ON)
@@ -237,6 +243,9 @@ set_target_properties(harry
 )
 set_target_properties(harry
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${SOURCE_DIR}/src"
+)
+set_target_properties (harry
+    PROPERTIES SOVERSION "0.0.0"
 )
 target_link_libraries(harry
     ${ZEROMQ_LIBRARIES} ${MORE_LIBRARIES}
@@ -315,6 +324,12 @@ IF (ENABLE_DRAFTS)
     hstring
     norm
     measures
+    )
+ENDIF (ENABLE_DRAFTS)
+
+IF (ENABLE_DRAFTS)
+    list (APPEND TEST_CLASSES
+    private_classes
     )
 ENDIF (ENABLE_DRAFTS)
 

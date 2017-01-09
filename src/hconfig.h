@@ -39,5 +39,5 @@ typedef struct
 void config_print(config_t *);
 int config_check(config_t *);
 void config_fprint(FILE *, config_t *);
-
+void hconfig_test (bool verbose);
 #endif /* HCONFIG_H */

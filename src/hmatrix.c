@@ -581,4 +581,15 @@ void hmatrix_destroy(hmatrix_t *m)
     free(m);
 }
 
+
+//  --------------------------------------------------------------------------
+//  Self test of this class
+
+
+void
+hmatrix_test (bool verbose)
+{
+    printf (" * hmatrix: SKIP.\n");
+}
+
 /** @} */
