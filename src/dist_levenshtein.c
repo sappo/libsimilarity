@@ -152,6 +152,10 @@ dist_levenshtein_compare_yeti(hstring_t *x, hstring_t *y)
         }
     }
 
+    //  Decrement length  again
+    x->len--;
+    y->len--;
+
     i = *end;
     free(row);
     return i;
