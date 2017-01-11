@@ -13,7 +13,7 @@
 #define DIST_HAMMING_H
 
 /* Module interface */
-void dist_hamming_config();
+void dist_hamming_config(measures_t *self);
 float dist_hamming_compare(measures_t *, hstring_t *, hstring_t *);
 void dist_hamming_test (bool verbose);
 

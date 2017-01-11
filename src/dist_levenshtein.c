@@ -31,11 +31,6 @@ dist_levenshtein_config (measures_t *self)
     const char *str;
     measures_opts_t *opts = self->opts;
 
-    //  Defaults
-    opts->lnorm = LN_NONE;
-    opts->cost_ins = 1.0;
-    opts->cost_del = 1.0;
-    opts->cost_sub = 1.0;
     //  Apply costs
     config_lookup_float(self->cfg, "measures.dist_levenshtein.cost_ins",
                         &opts->cost_ins);
@@ -177,7 +172,8 @@ static float
 dist_levenshtein_compare_toub (measures_t *self, hstring_t *x, hstring_t *y)
 {
     measures_opts_t *opts = self->opts;
-    int i, j, a, b;
+    int i, j;
+    double a, b;
 
     if (x->len == 0 && y->len == 0)
         return 0;
@@ -188,7 +184,7 @@ dist_levenshtein_compare_toub (measures_t *self, hstring_t *x, hstring_t *y)
      * has a length m+1, so just O(m) space.  Initialize the curr row.
      */
     int curr = 0, next = 1;
-    int *rows = (int *) zmalloc(sizeof(int) * (y->len + 1) * 2);
+    double *rows = (double *) zmalloc(sizeof(double) * (y->len + 1) * 2);
     if (!rows) {
         error("Failed to allocate memory for Levenshtein distance");
         return 0;
@@ -357,6 +353,37 @@ static struct hstring_test tests[] = {
     {NULL}
 };
 
+/*
+ * Structure for testing string kernels/distances
+ */
+struct hstring_test_weighted
+{
+    char *x;            /**< String x */
+    char *y;            /**< String y */
+    char *delim;        /**< Delimiter string */
+    float v;            /**< Expected output */
+    double cost_ins;
+    double cost_del;
+    double cost_sub;
+};
+
+static struct hstring_test_weighted weighted_tests[] = {
+    {"abc", "ab", "", 1, 1, 1, 1},
+    {"abc", "ab", "", 2, 2, 1, 1},
+    {"abc", "ab", "", 3, 3, 1, 1},
+    {"ab", "abc", "", 1, 1, 1, 1},
+    {"ab", "abc", "", 2, 1, 2, 1},
+    {"ab", "abc", "", 3, 1, 3, 1},
+    {"abc", "adc", "", 1, 1, 1, 1},
+    {"abc", "adc", "", 2, 1, 1, 2}, // Substitution d -> b
+    {"abc", "adc", "", 2, 1, 1, 3}, // Delete d + Insert b
+    {"abc", "adc", "", 3, 1, 3, 3}, // Substitution d -> b
+    {"abc", "adc", "", 3, 3, 1, 3}, // Substitution d -> b
+    {"abc", "adc", "", 6, 4, 2, 15}, // Delete d + Insert b
+    {"abc", "adc", "", 4, 2.5, 1.5, 15}, // Delete d + Insert b
+    {NULL}
+};
+
 
 void
 dist_levenshtein_test (bool verbose)
@@ -387,6 +414,38 @@ dist_levenshtein_test (bool verbose)
 
         if (diff > 1e-6) {
             printf ("Error %f != %f\n", d, tests[i].v);
+            hstring_print (x);
+            hstring_print (y);
+            err = TRUE;
+        }
+
+        hstring_destroy (&x);
+        hstring_destroy (&y);
+    }
+
+    for (i = 0; weighted_tests[i].x && !err; i++) {
+        x = hstring_new (weighted_tests[i].x);
+        y = hstring_new (weighted_tests[i].y);
+
+        if (strlen(weighted_tests[i].delim) == 0)
+            measures_config_set_string (levenshtein, "measures.granularity", "bytes");
+        else
+            measures_config_set_string (levenshtein, "measures.granularity", "tokens");
+
+        measures_config_set_float (levenshtein, "measures.dist_levenshtein.cost_ins", weighted_tests[i].cost_ins);
+        measures_config_set_float (levenshtein, "measures.dist_levenshtein.cost_del", weighted_tests[i].cost_del);
+        measures_config_set_float (levenshtein, "measures.dist_levenshtein.cost_sub", weighted_tests[i].cost_sub);
+
+        hstring_delim_set (weighted_tests[i].delim);
+
+        hstring_preproc (x, levenshtein);
+        hstring_preproc (y, levenshtein);
+
+        float d = measures_compare (levenshtein, x, y);
+        double diff = fabs (weighted_tests[i].v - d);
+
+        if (diff > 1e-6) {
+            printf ("Error %f != %f\n", d, weighted_tests[i].v);
             hstring_print (x);
             hstring_print (y);
             err = TRUE;

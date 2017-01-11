@@ -35,11 +35,7 @@
  * @{
  */
 
-/* External variables */
-extern config_t cfg;
-
 /* Global variables */
-static double scaling = 0.1;
 
 #ifdef JARO_COMPARE_SERRANO
 /* Some help functions */
@@ -57,9 +53,12 @@ static inline int min(int x, int y)
 /**
  * Initializes the similarity measure
  */
-void dist_jarowinkler_config()
+void dist_jarowinkler_config(measures_t *self)
 {
-    config_lookup_float(&cfg, "measures.dist_jarowinkler.scaling", &scaling);
+    assert(self);
+    measures_opts_t *opts = self->opts;
+
+    config_lookup_float(self->cfg, "measures.dist_jarowinkler.scaling", &opts->scaling);
 }
 
 
@@ -174,7 +173,7 @@ static float dist_jaro_compare_yeti(hstring_t *x, hstring_t *y)
     match = 0;
     /* the part with allowed range overlapping left */
     for (i = 0; i < halflen; i++) {
-        for (j = 0; j <= i + halflen; j++) {
+        for (j = 0; j < i + halflen; j++) {
             if (!hstring_compare(x, j, y, i) && !idx[j]) {
                 match++;
                 idx[j] = match;
@@ -238,17 +237,18 @@ float dist_jaro_compare(measures_t *self, hstring_t *x, hstring_t *y)
  */
 float dist_jarowinkler_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
+    measures_opts_t *opts = self->opts;
     int l;
     float d = dist_jaro_compare(self, x, y);
 
     /* Calculate common string prefix up to 4 chars */
     int m = min(min(x->len, y->len), 4);
-    for (l = 0; l < m; l++)
+    for (l = 0; l < m; l++){
         if (hstring_compare(x, l, y, l))
-            break;
+            break;}
 
     /* Jaro-Winkler distance */
-    return d - l * scaling * d;
+    return d - l * opts->scaling * d;
 }
 
 
@@ -256,9 +256,80 @@ float dist_jarowinkler_compare(measures_t *self, hstring_t *x, hstring_t *y)
 //  Self test of this class
 
 
+/*
+ * Structure for testing string kernels/distances
+ */
+struct hstring_test
+{
+    char *x;            /**< String x */
+    char *y;            /**< String y */
+    float v;            /**< Expected output */
+};
+
+
+static struct hstring_test tests[] = {
+    /* Comparison using bytes */
+    {"", "", 0},
+    {"a", "", 1.0},
+    {"", "a", 1.0},
+    {"MARTHA", "MARHTA", 1 - 0.961},
+    {"DWAYNE", "DUANE", 1 - 0.84},
+    {"DIXON", "DICKSONX", 1 - 0.813},
+    // Not from Wikipedia, proves triangle inequality doesn't hold
+    /*{"OZYMANDIAS", "MARCUS", 1 - 0.599},*/
+    /* New examples */
+    {"b", "b", 0},
+    {"b", "bac", 1 - 0.8},
+    {"b", "baba", 1 - 0.775},
+    {"bac", "baba", 1 - 0.777778},
+    {"baba", "baba", 1 - 1},
+    {"john", "baba", 1 - 0},
+    // Simmetrics (TODO add more)
+    {"test string1", "test string2", 1 - 0.9666},
+    {"test string1", "Sold", 1 - 0},
+    {"test", "test string2", 1 - 0.8666},
+    {"aaa bbb ccc ddd", "aaa bbb ccc eee", 1 - 0.9199},
+    {"Healed", "Sealed", 1 - 0.889},
+    {"Healed", "Healthy", 1 - 0.8476},
+    {"Healed", "Heard", 1 - 0.8756},
+    {NULL}
+};
+
+
 void
 dist_jarowinkler_test (bool verbose)
 {
-    printf (" * dist_jarowinkler: SKIP.\n");
+    printf (" * Jaro-Winkler distance:");
+
+    //  @selftest
+    int i, err = FALSE;
+    hstring_t *x, *y;
+    measures_t *jarowinkler = measures_new ("dist_jarowinkler");
+    assert (jarowinkler);
+
+    for (i = 0; tests[i].x && !err; i++) {
+        x = hstring_new (tests[i].x);
+        y = hstring_new (tests[i].y);
+
+        hstring_preproc (x, jarowinkler);
+        hstring_preproc (y, jarowinkler);
+
+        float d = measures_compare (jarowinkler, x, y);
+        double diff = fabs (tests[i].v - d);
+
+        if (diff > 1e-3) {
+            printf ("Error %f != %f\n", d, tests[i].v);
+            hstring_print (x);
+            hstring_print (y);
+            assert(false);
+        }
+
+        hstring_destroy (&x);
+        hstring_destroy (&y);
+    }
+    //  @end
+    measures_destroy (&jarowinkler);
+
+    printf(" OK\n");
 }
 /** @} */

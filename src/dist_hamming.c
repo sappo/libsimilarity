@@ -21,22 +21,18 @@
  * @{
  */
 
-/* Normalizations */
-static lnorm_t n = LN_NONE;
-
-/* External variables */
-extern config_t cfg;
-
 /**
  * Initializes the similarity measure
  */
-void dist_hamming_config()
+void dist_hamming_config(measures_t *self)
 {
+    assert (self);
+    measures_opts_t *opts = self->opts;
     const char *str;
 
-    /* Normalization */
-    config_lookup_string(&cfg, "measures.dist_hamming.norm", &str);
-    n = lnorm_get(str);
+    //  Apply normalization
+    config_lookup_string(self->cfg, "measures.dist_hamming.norm", &str);
+    opts->lnorm = lnorm_get(str);
 }
 
 /**
@@ -49,6 +45,7 @@ void dist_hamming_config()
  */
 float dist_hamming_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
+    measures_opts_t *opts = self->opts;
     float d = 0;
     int i;
 
@@ -60,17 +57,100 @@ float dist_hamming_compare(measures_t *self, hstring_t *x, hstring_t *y)
     /* Add remaining characters as mismatches */
     d += fabs(y->len - x->len);
 
-    return lnorm(n, d, x, y);
+    return lnorm(opts->lnorm, d, x, y);
 }
 
 
 //  --------------------------------------------------------------------------
 //  Self test of this class
 
+/*
+ * Structure for testing string kernels/distances
+ */
+struct hstring_test
+{
+    char *x;            /**< String x */
+    char *y;            /**< String y */
+    char *delim;        /**< Delimiter string */
+    float v;            /**< Expected output */
+};
+
+static struct hstring_test tests[] = {
+    /* Comparison using bytes */
+    {"", "", "", 0},
+    {"a", "", "", 1},
+    {"", "a", "", 1},
+    {"a", "a", "", 0},
+    {"ab", "ba", "", 2},
+    {"bab", "ba", "", 1},
+    {"abba", "babb", "", 3},
+    {"a.b", "a.c", "", 1},
+    {".a.b.", "a..c.", "", 3},
+    // Simmetrics
+    {"test 1", "test 1", "", 0},
+    {"test 1", "test 2", "", 1},
+    {"aaabbb", "aaaaaa", "", 3},
+    {"abcdxy", "abcexy", "", 1},
+    {"abcdxy", "abfexy", "", 2},
+    /* Comparison using tokens */
+    {"", "", ".", 0},
+    {"a", "", ".", 1},
+    {"", "a", ".", 1},
+    {"a", "a", ".", 0},
+    {"ab", "ba", ".", 1},
+    {"bab", "ba", ".", 1},
+    {"abba", "babb", ".", 1},
+    {"a.b", "a.c", ".", 1},
+    {".a.b.", "a..c.", ".", 1},
+    /* Further test cases */
+    {"abcd", "axcy", "", 2},
+    {"abc", "axcy", "", 2},
+    {"abcd", "xcy", "", 4},
+    {".x.y.", ".x.y.", ".", 0},
+    {"x...y..", "...x..y", ".", 0},
+    {".x.y", "x.y.", ".", 0},
+    {NULL}
+};
 
 void
 dist_hamming_test (bool verbose)
 {
-    printf (" * dist_hamming: SKIP.\n");
+    printf (" * Hamming distance:");
+    //  @selftest
+    int i, err = FALSE;
+    hstring_t *x, *y;
+    measures_t *hamming = measures_new ("dist_hamming");
+    assert (hamming);
+
+    for (i = 0; tests[i].x && !err; i++) {
+        x = hstring_new (tests[i].x);
+        y = hstring_new (tests[i].y);
+
+        if (strlen(tests[i].delim) == 0)
+            measures_config_set_string(hamming, "measures.granularity", "bytes");
+        else
+            measures_config_set_string(hamming, "measures.granularity", "tokens");
+        hstring_delim_set (tests[i].delim);
+
+        hstring_preproc (x, hamming);
+        hstring_preproc (y, hamming);
+
+        float d = measures_compare(hamming, x, y);
+        double diff = fabs (tests[i].v - d);
+
+        if (diff > 1e-6) {
+            printf("\nError %f != %f\n", d, tests[i].v);
+            hstring_print(x);
+            hstring_print(y);
+            err = TRUE;
+        }
+
+        hstring_destroy(&x);
+        hstring_destroy(&y);
+    }
+    measures_destroy (&hamming);
+    //  @end
+
+    printf(" OK\n");
 }
 /** @} */

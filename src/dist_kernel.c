@@ -22,11 +22,9 @@
  */
 
 /* External variables */
-extern config_t cfg;
 extern measures_func_t func[];
 
 /* Normalizations */
-static knorm_t norm = KN_NONE;
 static int kern = 0;
 static int squared = 1;
 
@@ -35,6 +33,8 @@ static int squared = 1;
  */
 void dist_kernel_config(measures_t *self)
 {
+    assert (self);
+    measures_opts_t *opts = self->opts;
     const char *str;
 
     /* Kernel measure */
@@ -47,7 +47,7 @@ void dist_kernel_config(measures_t *self)
 
     /* Normalization */
     config_lookup_string(self->cfg, "measures.dist_kernel.norm", &str);
-    norm = knorm_get(str);
+    opts->knorm = knorm_get(str);
 }
 
 /**
@@ -98,9 +98,65 @@ float dist_kernel_compare(measures_t *self, hstring_t *x, hstring_t *y)
 //  Self test of this class
 
 
+/*
+ * Structure for testing string kernels/distances
+ */
+struct hstring_test
+{
+    char *x;            /**< String x */
+    char *y;            /**< String y */
+    float v;            /**< Expected output */
+};
+
+
+struct hstring_test tests[] = {
+    /* No shift */
+    {"", "", 0},
+    {"a", "a", 0},
+    {"ab", "ab", 0},
+    {"ab", "ax", 1.25},
+    {"ab", "xx", 2.00},
+    {NULL}
+};
+
+
 void
 dist_kernel_test (bool verbose)
 {
-    printf (" * dist_kernel: SKIP.\n");
+    printf(" * Kernel distance:");
+
+    //  @selftest
+    int i, err = FALSE;
+    hstring_t *x, *y;
+    measures_t *kernel = measures_new ("dist_kernel");
+    assert (kernel);
+    measures_config_set_string (kernel, "measures.dist_kernel.kern", "kern_wdegree");
+    measures_config_set_string (kernel, "measures.dist_kernel.norm", "l2");
+
+    for (i = 0; tests[i].x && !err; i++) {
+        x = hstring_new (tests[i].x);
+        y = hstring_new (tests[i].y);
+
+        hstring_preproc (x, kernel);
+        hstring_preproc (y, kernel);
+
+        float d = measures_compare (kernel, x, y);
+        double diff = fabs(tests[i].v - d);
+
+
+        if (diff > 1e-6) {
+            printf ("Error %f != %f\n", d, tests[i].v);
+            hstring_print (x);
+            hstring_print (y);
+            assert(false);
+        }
+
+        hstring_destroy(&x);
+        hstring_destroy(&y);
+    }
+    measures_destroy (&kernel);
+    //  @end
+
+    printf(" OK\n");
 }
 /** @} */

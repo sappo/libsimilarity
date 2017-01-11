@@ -13,7 +13,7 @@
 #define DIST_JAROWINKLER_H
 
 /* Interface 1 */
-void dist_jarowinkler_config();
+void dist_jarowinkler_config(measures_t *self);
 float dist_jarowinkler_compare(measures_t *, hstring_t *, hstring_t *);
 
 /* Interface 2 */

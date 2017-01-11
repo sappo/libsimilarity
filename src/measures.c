@@ -103,6 +103,7 @@ measures_destroy (measures_t **self_p)
     if (*self_p) {
         measures_t *self = *self_p;
         config_destroy(self->cfg);
+        vcache_destroy();
         free (self->cfg);
         free (self->opts);
         free (self);
@@ -239,6 +240,7 @@ measures_config_set_string (measures_t *self, const char *key, const char *value
     assert (key);
     assert (value);
     config_set_string (self->cfg, key, value);
+    self->func->measure_config (self);
 }
 
 
@@ -251,6 +253,7 @@ measures_config_set_int (measures_t *self, const char *key, const int value)
     assert (self);
     assert (key);
     config_set_int (self->cfg, key, value);
+    self->func->measure_config (self);
 }
 
 
@@ -263,6 +266,7 @@ measures_config_set_float (measures_t *self, const char *key, const float value)
     assert (self);
     assert (key);
     config_set_float (self->cfg, key, value);
+    self->func->measure_config (self);
 }
 
 
@@ -275,6 +279,7 @@ measures_config_set_bool (measures_t *self, const char *key, const bool value)
     assert (self);
     assert (key);
     config_set_bool (self->cfg, key, value);
+    self->func->measure_config (self);
 }
 
 

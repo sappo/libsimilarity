@@ -37,8 +37,8 @@ void
 dist_bag_config (measures_t *self)
 {
     assert (self);
-    const char *str;
     measures_opts_t *opts = self->opts;
+    const char *str;
 
     //  Apply normalization
     config_lookup_string (self->cfg, "measures.dist_bag.norm", &str);
@@ -206,7 +206,7 @@ dist_bag_test (bool verbose)
             printf ("Error %f != %f\n", d, tests[i].v);
             hstring_print (x);
             hstring_print (y);
-            err = TRUE;
+            assert(false);
         }
 
         hstring_destroy(&x);

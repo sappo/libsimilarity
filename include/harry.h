@@ -82,13 +82,26 @@ typedef struct
 
 typedef struct
 {
+    //  Normalizations
     lnorm_t lnorm;
     knorm_t knorm;
+    //  Levensthein/Damerau/OSA
     double cost_ins;
     double cost_del;
     double cost_sub;
     double cost_tra;
+    //  Compression
     cfg_int level;
+    //  Jarowinkler
+    double scaling;
+    //  Lee
+    cfg_int min_sym;
+    cfg_int max_sym;
+    //  Coefficients
+    int binary;
+    //  Kernel wdegree
+    cfg_int degree;         /**< Degree of kernel */
+    cfg_int shift;          /**< Shift of kernel */
 } measures_opts_t;
 
 struct _measures_t {

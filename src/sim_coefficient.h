@@ -19,7 +19,8 @@ typedef struct
     float c;    /**< Number of right mismatches */
 } match_t;
 
-void sim_coefficient_config();
+void sim_coefficient_config(measures_t *self);
+void sim_coefficient_apply_cfg(measures_t *self);
 
 #define sim_jaccard_config sim_coefficient_config
 float sim_jaccard_compare(measures_t *, hstring_t *x, hstring_t *y);

@@ -13,7 +13,7 @@
 #define DIST_LEE_H
 
 /* Module interface */
-void dist_lee_config();
+void dist_lee_config(measures_t *self);
 float dist_lee_compare(measures_t *, hstring_t *, hstring_t *);
 void dist_lee_test (bool verbose);
 

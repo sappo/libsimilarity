@@ -21,20 +21,16 @@
  * @{
  */
 
-/* Alphabet size */
-static cfg_int min_sym = 0;
-static cfg_int max_sym = 255;
-
-/* External variables */
-extern config_t cfg;
-
 /**
  * Initializes the similarity measure
  */
-void dist_lee_config()
+void dist_lee_config(measures_t *self)
 {
-    config_lookup_int(&cfg, "measures.dist_lee.min_sym", &min_sym);
-    config_lookup_int(&cfg, "measures.dist_lee.max_sym", &max_sym);
+    assert(self);
+    measures_opts_t *opts = self->opts;
+
+    config_lookup_int(self->cfg, "measures.dist_lee.min_sym", &opts->min_sym);
+    config_lookup_int(self->cfg, "measures.dist_lee.max_sym", &opts->max_sym);
 }
 
 /**
@@ -47,17 +43,18 @@ void dist_lee_config()
  */
 float dist_lee_compare(measures_t *self, hstring_t *x, hstring_t *y)
 {
+    measures_opts_t *opts = self->opts;
     float d = 0, ad;
-    int i, q = max_sym - min_sym;
+    int i, q = opts->max_sym - opts->min_sym;
 
     /* Loop over strings */
     for (i = 0; i < x->len || i < y->len; i++) {
         if (i < x->len && i < y->len)
-            ad = fabs(hstring_compare(x, i, y, i) - min_sym);
+            ad = fabs(hstring_compare(x, i, y, i) - opts->min_sym);
         else if (i < x->len)
-            ad = fabs(hstring_get(x, i) - min_sym);
+            ad = fabs(hstring_get(x, i) - opts->min_sym);
         else
-            ad = fabs(hstring_get(y, i) - min_sym);
+            ad = fabs(hstring_get(y, i) - opts->min_sym);
 
         if (ad > q) {
             warning("Distance of symbols larger than alphabet. Fixing.");
@@ -74,9 +71,63 @@ float dist_lee_compare(measures_t *self, hstring_t *x, hstring_t *y)
 //  Self test of this class
 
 
+/*
+ * Structure for testing string kernels/distances
+ */
+struct hstring_test
+{
+    char *x;            /**< String x */
+    char *y;            /**< String y */
+    float v;            /**< Expected output */
+};
+
+static struct hstring_test tests[] = {
+    /* comparison using bytes */
+    {"", "", 0},
+    {"a", "", 97},
+    {"", "a", 97},
+    {"a", "a", 0},
+    {"ab", "ba", 2},
+    {"bab", "ba", 98},
+    {"\xff", "", 1},
+    {"\x01", "", 1},
+    {NULL}
+};
+
 void
 dist_lee_test (bool verbose)
 {
-    printf (" * dist_lee: SKIP.\n");
+    printf (" * Lee distance:");
+
+    //  @selftest
+    int i, err = FALSE;
+    hstring_t *x, *y;
+    measures_t *lee = measures_new ("dist_lee");
+    assert (lee);
+
+    for (i = 0; tests[i].x && !err; i++) {
+        x = hstring_new (tests[i].x);
+        y = hstring_new (tests[i].y);
+
+        hstring_preproc (x, lee);
+        hstring_preproc (y, lee);
+
+        float d = measures_compare (lee, x, y);
+        double diff = fabs(tests[i].v - d);
+
+        if (diff > 1e-6) {
+            printf("Error %f != %f\n", d, tests[i].v);
+            hstring_print (x);
+            hstring_print (y);
+            assert (false);
+        }
+
+        hstring_destroy (&x);
+        hstring_destroy (&y);
+    }
+    measures_destroy (&lee);
+    //  @end
+
+    printf(" OK\n");
 }
 /** @} */

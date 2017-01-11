@@ -22,29 +22,21 @@
  * @{
  */
 
-/* External variables */
-extern config_t cfg;
-
-/* Normalizations */
-static knorm_t n = KN_NONE;
-
-/* Local variables */
-static cfg_int degree = 3;         /**< Degree of kernel */
-static cfg_int shift = 0;          /**< Shift of kernel */
-
 /**
  * Initializes the similarity measure
  */
-void kern_wdegree_config()
+void kern_wdegree_config(measures_t *self)
 {
+    assert (self);
+    measures_opts_t* opts = self->opts;
     const char *str;
 
-    config_lookup_int(&cfg, "measures.kern_wdegree.degree", &degree);
-    config_lookup_int(&cfg, "measures.kern_wdegree.shift", &shift);
+    config_lookup_int(self->cfg, "measures.kern_wdegree.degree", &opts->degree);
+    config_lookup_int(self->cfg, "measures.kern_wdegree.shift", &opts->shift);
 
     /* Normalization */
-    config_lookup_string(&cfg, "measures.kern_wdegree.norm", &str);
-    n = knorm_get(str);
+    config_lookup_string(self->cfg, "measures.kern_wdegree.norm", &str);
+    opts->knorm = knorm_get(str);
 }
 
 /**
@@ -76,8 +68,9 @@ static float weight(float len, int degree)
  * @param len Length of region to match
  * @return kernel value
  */
-static float kern_wdegree(hstring_t *x, hstring_t *y, int xs, int ys, int len)
+static float kern_wdegree(measures_t *self, hstring_t *x, hstring_t *y, int xs, int ys, int len)
 {
+    measures_opts_t *opts = self->opts;
     int i, start;
     float k = 0;
 
@@ -93,12 +86,12 @@ static float kern_wdegree(hstring_t *x, hstring_t *y, int xs, int ys, int len)
         if (start == -1)
             continue;
 
-        k += weight(i - start, degree);
+        k += weight(i - start, opts->degree);
         start = -1;
     }
 
     if (start != -1)
-        k += weight(i - start, degree);
+        k += weight(i - start, opts->degree);
 
     return k;
 }
@@ -111,17 +104,18 @@ static float kern_wdegree(hstring_t *x, hstring_t *y, int xs, int ys, int len)
  */
 static float kernel(measures_t *self, hstring_t *x, hstring_t *y)
 {
+    measures_opts_t *opts = self->opts;
     float k = 0;
     int s, len;
 
     /* Loop over shifts */
-    for (s = -shift; s <= shift; s++) {
+    for (s = -opts->shift; s <= opts->shift; s++) {
         if (s <= 0) {
             len = fmax(fmin(x->len, y->len + s), 0);
-            k += kern_wdegree(x, y, 0, -s, len);
+            k += kern_wdegree(self, x, y, 0, -s, len);
         } else {
             len = fmax(fmin(x->len - s, y->len), 0);
-            k += kern_wdegree(x, y, +s, 0, len);
+            k += kern_wdegree(self, x, y, +s, 0, len);
         }
     }
 
