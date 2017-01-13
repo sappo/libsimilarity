@@ -188,7 +188,7 @@ void
 '''
 cdefs = re.sub(r';[^;]*\bva_list\b[^;]*;', ';', cdefs, flags=re.S) # we don't support anything with a va_list arg
 
-ffi.set_source("harry_cffi", None)
+ffi.set_source("harry.harry_cffi", None)
 ffi.cdef(cdefs)
 
 ffiwrapper = FFI()
@@ -201,7 +201,7 @@ void
 
 ''')
 
-ffiwrapper.set_source("harry_py_destructors",
+ffiwrapper.set_source("harry.harry_py_destructors",
                       libraries=['harry'], source='''
 #include <harry.h>
 void

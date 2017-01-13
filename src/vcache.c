@@ -23,6 +23,9 @@ static double misses = 0;
 /* Read-write cache for lock */
 static rwlock_t rwlock;
 
+/* Measures */
+static long active_measures = 0;
+
 /**
  * @defgroup vcache Value cache
  * Cache for similarity values based on uthash.
@@ -35,23 +38,26 @@ static rwlock_t rwlock;
  */
 void vcache_init(config_t *cfg)
 {
-    cfg_int csize;
-    config_lookup_int(cfg, "measures.cache_size", &csize);
+    if (active_measures == 0) {
+        cfg_int csize;
+        config_lookup_int(cfg, "measures.cache_size", &csize);
 
-    /* Initialize cache stats */
-    space = floor((csize * 1024 * 1024) / sizeof(entry_t));
-    size = 0;
-    misses = 0;
-    hits = 0;
+        /* Initialize cache stats */
+        space = floor((csize * 1024 * 1024) / sizeof(entry_t));
+        size = 0;
+        misses = 0;
+        hits = 0;
 
-    info_msg(1, "Initializing cache with %dMb (%d entries)", csize, space);
+        info_msg(1, "Initializing cache with %dMb (%d entries)", csize, space);
 
-    cache = (entry_t *) zmalloc(space * sizeof(entry_t));
-    if (!cache)
-        error("Failed to allocate value cache");
+        cache = (entry_t *) zmalloc(space * sizeof(entry_t));
+        if (!cache)
+            error("Failed to allocate value cache");
 
-    /* Initialize lock */
-    rwlock_init(&rwlock);
+        /* Initialize lock */
+        rwlock_init(&rwlock);
+    }
+    active_measures++;
 }
 
 /**
@@ -145,13 +151,16 @@ float vcache_get_hitrate()
  */
 void vcache_destroy()
 {
-    info_msg(1, "Clearing cache and freeing memory");
+    active_measures--;
+    if (active_measures == 0) {
+        info_msg(1, "Clearing cache and freeing memory");
 
-    /* Destroy lock */
-    rwlock_destroy(&rwlock);
+        /* Destroy lock */
+        rwlock_destroy(&rwlock);
 
-    /* Clear hash table */
-    free(cache);
+        /* Clear hash table */
+        free(cache);
+    }
 }
 
 

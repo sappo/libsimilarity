@@ -25,7 +25,8 @@ setup(
     install_requires=["cffi>=1.0.0"],
     setup_requires=["cffi>=1.0.0"],
     cffi_modules=[
-        "./harry/build_harry_cffi.py:ffi",
+        "harry/build_harry_cffi.py:ffi",
+        "harry/build_harry_cffi.py:ffiwrapper",
     ],
 )
 ################################################################################

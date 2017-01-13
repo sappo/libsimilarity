@@ -9,6 +9,7 @@
     >
     <include filename = "license.xml" />
     <version major = "0" minor = "4" patch = "3" />
+    <abi current = "0" revision = "0" age = "0" />
 
     <target name = "autotools" />
     <target name = "cmake" />

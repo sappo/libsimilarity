@@ -436,25 +436,27 @@ dist_levenshtein_test (bool verbose)
         hstring_destroy (&y);
     }
 
+    measures_t *wlevenshtein = measures_new ("dist_levenshtein");
+
     for (i = 0; weighted_tests[i].x && !err; i++) {
         x = hstring_new (weighted_tests[i].x);
         y = hstring_new (weighted_tests[i].y);
 
         if (strlen(weighted_tests[i].delim) == 0)
-            measures_config_set_string (levenshtein, "measures.granularity", "bytes");
+            measures_config_set_string (wlevenshtein, "measures.granularity", "bytes");
         else
-            measures_config_set_string (levenshtein, "measures.granularity", "tokens");
+            measures_config_set_string (wlevenshtein, "measures.granularity", "tokens");
 
-        measures_config_set_float (levenshtein, "measures.dist_levenshtein.cost_ins", weighted_tests[i].cost_ins);
-        measures_config_set_float (levenshtein, "measures.dist_levenshtein.cost_del", weighted_tests[i].cost_del);
-        measures_config_set_float (levenshtein, "measures.dist_levenshtein.cost_sub", weighted_tests[i].cost_sub);
+        measures_config_set_float (wlevenshtein, "measures.dist_levenshtein.cost_ins", weighted_tests[i].cost_ins);
+        measures_config_set_float (wlevenshtein, "measures.dist_levenshtein.cost_del", weighted_tests[i].cost_del);
+        measures_config_set_float (wlevenshtein, "measures.dist_levenshtein.cost_sub", weighted_tests[i].cost_sub);
 
         hstring_delim_set (weighted_tests[i].delim);
 
-        hstring_preproc (x, levenshtein);
-        hstring_preproc (y, levenshtein);
+        hstring_preproc (x, wlevenshtein);
+        hstring_preproc (y, wlevenshtein);
 
-        float d = measures_compare (levenshtein, x, y);
+        float d = measures_compare (wlevenshtein, x, y);
         double diff = fabs (weighted_tests[i].v - d);
 
         if (diff > 1e-6) {
@@ -467,7 +469,10 @@ dist_levenshtein_test (bool verbose)
         hstring_destroy (&x);
         hstring_destroy (&y);
     }
+
+    //  Cleanup
     measures_destroy (&levenshtein);
+    measures_destroy (&wlevenshtein);
     //  @end
 
     printf(" OK\n");
