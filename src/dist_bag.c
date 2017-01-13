@@ -121,7 +121,10 @@ dist_bag_compare (measures_t *self, hstring_t *x, hstring_t *y)
     bag_destroy (xh);
     bag_destroy (yh);
 
-    return lnorm (opts->lnorm, fmax(xd, yd), x, y);
+    if (opts->lnorm == LN_NONE)
+        return fmax (xd, yd);
+    else
+    return 1 - lnorm (opts->lnorm, fmax (xd, yd), x, y);
 }
 
 //  --------------------------------------------------------------------------

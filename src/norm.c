@@ -72,11 +72,11 @@ float wlnorm(lnorm_t n, float d, float w, hstring_t *x, hstring_t *y)
 {
     switch (n) {
     case LN_MIN:
-        return d / w * fmin(x->len, y->len);
+        return d / (w * fmin(x->len, y->len));
     case LN_MAX:
-        return d / w * fmax(x->len, y->len);
+        return d / (w * fmax(x->len, y->len));
     case LN_AVG:
-        return d / w * (0.5 * (x->len + y->len));
+        return d / (w * (0.5 * (x->len + y->len)));
     case LN_NONE:
     default:
         return d;
