@@ -23,6 +23,7 @@ typedef enum
 
 lnorm_t lnorm_get(const char *str);
 float lnorm(lnorm_t n, float d, hstring_t *x, hstring_t *y);
+float wlnorm(lnorm_t n, float d, float w, hstring_t *x, hstring_t *y);
 
 /* Kernel normalizations */
 typedef enum

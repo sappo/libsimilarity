@@ -268,7 +268,16 @@ dist_levenshtein_compare (measures_t *self, hstring_t *x, hstring_t *y)
         f = dist_levenshtein_compare_toub (self, x, y);
     }
 
-    return lnorm (opts->lnorm, f, x, y);
+    if (opts->lnorm == LN_NONE)
+        return f;
+    else
+    if (fabs (opts->cost_ins - opts->cost_del) < 1e-6
+    &&  fabs (opts->cost_del - opts->cost_sub) < 1e-6) {
+        double w = fmax(fmax(opts->cost_ins, opts->cost_del), opts->cost_sub);
+        return 1 - wlnorm(opts->lnorm, f, w, x, y);
+    }
+    else
+        return 1 - lnorm (opts->lnorm, f, x, y);
 }
 
 

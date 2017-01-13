@@ -108,12 +108,6 @@ dist_damerau_config (measures_t *self)
     const char *str;
     measures_opts_t *opts = self->opts;
 
-    //  Defaults
-    opts->lnorm = LN_NONE;
-    opts->cost_ins = 1.0;
-    opts->cost_del = 1.0;
-    opts->cost_sub = 1.0;
-    opts->cost_tra = 1.0;
     //  Apply costs
     config_lookup_float(self->cfg, "measures.dist_damerau.cost_ins", &opts->cost_ins);
     config_lookup_float(self->cfg, "measures.dist_damerau.cost_del", &opts->cost_del);
@@ -187,7 +181,17 @@ dist_damerau_compare (measures_t *self, hstring_t *x, hstring_t *y)
     free(d);
     hash_destroy(&shash);
 
-    return lnorm(opts->lnorm, r, x, y);
+    if (opts->lnorm == LN_NONE)
+        return r;
+    else
+    if (fabs (opts->cost_ins - opts->cost_del) < 1e-6
+    &&  fabs (opts->cost_del - opts->cost_sub) < 1e-6
+    &&  fabs (opts->cost_sub - opts->cost_tra) < 1e-6) {
+        double w = fmax(fmax(fmax(opts->cost_ins, opts->cost_del), opts->cost_sub), opts->cost_tra);
+        return 1 - wlnorm(opts->lnorm, r, w, x, y);
+    }
+    else
+        return 1 - lnorm(opts->lnorm, r, x, y);
 }
 
 

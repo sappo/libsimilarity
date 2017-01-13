@@ -61,6 +61,29 @@ float lnorm(lnorm_t n, float d, hstring_t *x, hstring_t *y)
 }
 
 /**
+ * Normalize a similarity value by string length taking weights into account
+ * @param n Normalization type
+ * @param d Similarity value
+ * @param x String
+ * @param y String
+ * @return Normalized similarity value
+ */
+float wlnorm(lnorm_t n, float d, float w, hstring_t *x, hstring_t *y)
+{
+    switch (n) {
+    case LN_MIN:
+        return d / w * fmin(x->len, y->len);
+    case LN_MAX:
+        return d / w * fmax(x->len, y->len);
+    case LN_AVG:
+        return d / w * (0.5 * (x->len + y->len));
+    case LN_NONE:
+    default:
+        return d;
+    }
+}
+
+/**
  * Parse string for kernel normalization
  * @param str String for normalization
  * @return normalization type
