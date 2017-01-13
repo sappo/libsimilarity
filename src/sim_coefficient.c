@@ -319,6 +319,8 @@ sim_coefficient_test (bool verbose)
             assert (false);
         }
 
+        hstring_destroy (&x);
+        hstring_destroy (&y);
     }
     measures_destroy (&jaccard);
 
@@ -344,6 +346,8 @@ sim_coefficient_test (bool verbose)
             assert (false);
         }
 
+        hstring_destroy (&x);
+        hstring_destroy (&y);
     }
     measures_destroy (&dice);
     //  @end

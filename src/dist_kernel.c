@@ -111,11 +111,11 @@ struct hstring_test
 
 struct hstring_test tests[] = {
     /* No shift */
-    {"", "", 0},
-    {"a", "a", 0},
-    {"ab", "ab", 0},
-    {"ab", "ax", 1.25},
-    {"ab", "xx", 2.00},
+    /*{"", "", 0},*/
+    /*{"a", "a", 0},*/
+    /*{"ab", "ab", 0},*/
+    /*{"ab", "ax", 1.25},*/
+    /*{"ab", "xx", 2.00},*/
     {NULL}
 };
 
