@@ -198,6 +198,31 @@ float vcache_get_hitrate(vcache_t *self)
 void
 vcache_test (bool verbose)
 {
-    printf (" * vcache: SKIP.\n");
+    printf (" * vcache: ");
+    //  @selftest
+    config_t *cfg = (config_t *) zmalloc (sizeof (config_t));
+    config_init (cfg);
+    config_check (cfg);
+    vcache_t *cache = vcache_new (cfg);
+
+    hstring_t *h1 = hstring_new("Test1");
+    hstring_t *h2 = hstring_new("Test2");
+    uint64_t h1h2_hash = hstring_hash2 (h1, h2);
+
+    float m = 0;
+
+    assert (!vcache_load (cache, h1h2_hash, &m, ID_COMPARE));
+    vcache_store (cache, h1h2_hash, m, ID_COMPARE);
+    assert (vcache_load (cache, h1h2_hash, &m, ID_COMPARE));
+
+    //  Cleanup
+    hstring_destroy (&h1);
+    hstring_destroy (&h2);
+    config_destroy (cfg);
+    free (cfg);
+    vcache_destroy (&cache);
+
+    // @end
+    printf ("OK\n");
 }
 /** @} */
