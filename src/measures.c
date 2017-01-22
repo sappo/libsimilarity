@@ -162,7 +162,7 @@ measures_config (measures_t *self, const char *name)
         hstring_delim_reset();
 
     //  Enable global cache
-    config_lookup_int(self->cfg, "measures.global_cache", &self->global_cache);
+    config_lookup_bool (self->cfg, "measures.global_cache", &self->global_cache);
 
     if (self->cache)
         vcache_invalidate (self->cache);
