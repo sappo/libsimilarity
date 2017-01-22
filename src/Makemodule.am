@@ -28,9 +28,9 @@ src_libharry_la_SOURCES = \
     src/md5.c \
     src/murmur.c \
     src/rwlock.c \
+    src/hconfig.c \
     src/vcache.c \
     src/hmatrix.c \
-    src/hconfig.c \
     src/kern_distance.c \
     src/kern_subsequence.c \
     src/kern_spectrum.c \

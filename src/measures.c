@@ -100,6 +100,8 @@ measures_destroy (measures_t **self_p)
     if (*self_p) {
         measures_t *self = *self_p;
         config_destroy(self->cfg);
+        printf ("%s cache hitrate: %f\n", self->func->name,
+                                          vcache_get_hitrate(self->cache));
         vcache_destroy(&self->cache);
         free (self->cfg);
         free (self->opts);
@@ -220,6 +222,7 @@ measures_compare (measures_t *self, hstring_t *x, hstring_t *y)
 {
     if (!self->global_cache)
         return self->func->measure_compare (self, x, y);
+
 
     uint64_t xyk = hstring_hash2 (x, y);
     float m = 0;

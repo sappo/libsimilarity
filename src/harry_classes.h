@@ -26,9 +26,9 @@
 #include "md5.h"
 #include "murmur.h"
 #include "rwlock.h"
+#include "hconfig.h"
 #include "vcache.h"
 #include "hmatrix.h"
-#include "hconfig.h"
 #include "kern_distance.h"
 #include "kern_subsequence.h"
 #include "kern_spectrum.h"
@@ -65,17 +65,17 @@ HARRY_PRIVATE void
 //  *** Draft method, defined for internal use only ***
 //  Self test of this class.
 HARRY_PRIVATE void
+    hconfig_test (bool verbose);
+
+//  *** Draft method, defined for internal use only ***
+//  Self test of this class.
+HARRY_PRIVATE void
     vcache_test (bool verbose);
 
 //  *** Draft method, defined for internal use only ***
 //  Self test of this class.
 HARRY_PRIVATE void
     hmatrix_test (bool verbose);
-
-//  *** Draft method, defined for internal use only ***
-//  Self test of this class.
-HARRY_PRIVATE void
-    hconfig_test (bool verbose);
 
 //  *** Draft method, defined for internal use only ***
 //  Self test of this class.

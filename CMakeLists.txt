@@ -160,9 +160,9 @@ set (harry_headers
     src/md5.h
     src/murmur.h
     src/rwlock.h
+    src/hconfig.h
     src/vcache.h
     src/hmatrix.h
-    src/hconfig.h
     src/kern_distance.h
     src/kern_subsequence.h
     src/kern_spectrum.h
@@ -199,9 +199,9 @@ set (harry_sources
     src/md5.c
     src/murmur.c
     src/rwlock.c
+    src/hconfig.c
     src/vcache.c
     src/hmatrix.c
-    src/hconfig.c
     src/kern_distance.c
     src/kern_subsequence.c
     src/kern_spectrum.c

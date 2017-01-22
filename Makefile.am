@@ -49,9 +49,9 @@ EXTRA_DIST += \
     src/md5.h \
     src/murmur.h \
     src/rwlock.h \
+    src/hconfig.h \
     src/vcache.h \
     src/hmatrix.h \
-    src/hconfig.h \
     src/kern_distance.h \
     src/kern_subsequence.h \
     src/kern_spectrum.h \

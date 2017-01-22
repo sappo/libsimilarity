@@ -23,6 +23,7 @@
       config_setting_set_bool(config_lookup(c,x),s)
 
 typedef int cfg_int;
+typedef struct _vcache_t vcache_t;
 
 #ifndef TRUE
 #define TRUE 1
@@ -51,7 +52,6 @@ typedef int cfg_int;
  * These need to be patched first to support larger symbol sizes.
  */
 typedef uint64_t sym_t;
-
 /**
  * Structure for a string
  */

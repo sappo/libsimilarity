@@ -31,9 +31,9 @@ harry_private_selftest (bool verbose)
     md5_test (verbose);
     murmur_test (verbose);
     rwlock_test (verbose);
+    hconfig_test (verbose);
     vcache_test (verbose);
     hmatrix_test (verbose);
-    hconfig_test (verbose);
     kern_distance_test (verbose);
     kern_subsequence_test (verbose);
     kern_spectrum_test (verbose);
