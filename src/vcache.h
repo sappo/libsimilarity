@@ -30,6 +30,8 @@ vcache_t *
 vcache_new (config_t *cfg);
 void
 vcache_destroy (vcache_t **self_p);
+void
+vcache_invalidate (vcache_t *self);
 int vcache_load (vcache_t *self, uint64_t key, float *value, int);
 int vcache_store (vcache_t *self, uint64_t key, float value, int);
 void vcache_info (vcache_t *self);

@@ -164,12 +164,10 @@ measures_config (measures_t *self, const char *name)
     //  Enable global cache
     config_lookup_int(self->cfg, "measures.global_cache", &self->global_cache);
 
-    //  Invalidate cache
     if (self->cache)
-        vcache_destroy (&self->cache);
-
-    //  Setup fresh cache
-    self->cache = vcache_new (self->cfg);
+        vcache_invalidate (self->cache);
+    else
+        self->cache = vcache_new (self->cfg);
 
     //  Configure
     self->idx = measures_match(name);

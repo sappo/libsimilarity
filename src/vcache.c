@@ -86,6 +86,18 @@ vcache_destroy (vcache_t **self_p)
     }
 }
 
+//  --------------------------------------------------------------------------
+//  Invalidate cache without freeing the memory
+
+void
+vcache_invalidate (vcache_t *self)
+{
+    assert (self);
+    int index;
+    for (index = 0; index < self->space; index++)
+        self->cache[index].key = 0;
+}
+
 
 //  --------------------------------------------------------------------------
 //  Store a similarity value. The value is associated with 64 bit key that
