@@ -79,7 +79,7 @@ vcache_destroy (vcache_t **self_p)
         rwlock_destroy(&self->rwlock);
 
         //  Clear hash table
-        free(self->cache);
+        free (self->cache);
 
         //  Free self
         free(self);
