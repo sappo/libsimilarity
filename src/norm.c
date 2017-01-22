@@ -119,15 +119,15 @@ float knorm(measures_t *self, float k, hstring_t *x, hstring_t *y,
     switch (self->opts->knorm) {
     case KN_L2:
         xk = hstring_hash1(x);
-        if (!vcache_load(xk, &xv, ID_NORM)) {
+        if (!vcache_load(self->cache, xk, &xv, ID_NORM)) {
             xv = kernel(self, x, x);
-            vcache_store(xk, xv, ID_NORM);
+            vcache_store(self->cache, xk, xv, ID_NORM);
         }
 
         yk = hstring_hash1(y);
-        if (!vcache_load(yk, &yv, ID_NORM)) {
+        if (!vcache_load(self->cache, yk, &yv, ID_NORM)) {
             yv = kernel(self, y, y);
-            vcache_store(yk, yv, ID_NORM);
+            vcache_store(self->cache, yk, yv, ID_NORM);
         }
         return k / sqrt(xv * yv);
     case KN_NONE:

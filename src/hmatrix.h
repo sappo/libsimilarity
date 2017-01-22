@@ -135,8 +135,8 @@ void hmatrix_split_ex(hmatrix_t *, const int, const int);
 float *hmatrix_alloc(hmatrix_t *);
 float hmatrix_get(hmatrix_t *, int, int);
 void hmatrix_set(hmatrix_t *, int, int, float);
-void hmatrix_compute(hmatrix_t *, hstring_t *,
-                     double (*measure) (hstring_t, hstring_t));
+/*void hmatrix_compute(hmatrix_t *, hstring_t *,*/
+                     /*double (*measure) (hstring_t, hstring_t));*/
 void hmatrix_destroy(hmatrix_t *);
 float hmatrix_benchmark(hmatrix_t *, hstring_t *,
                         double (*measure) (hstring_t, hstring_t), double);

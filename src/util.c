@@ -117,7 +117,7 @@ double time_stamp()
  * @param b Maximum value
  * @param c Current value
  */
-void prog_bar(long a, long b, long c)
+void prog_bar(vcache_t *cache, long a, long b, long c)
 {
     int i, first, last;
     double perc, ptime = 0, min, max, in;
@@ -176,7 +176,7 @@ void prog_bar(long a, long b, long c)
 #else
     fprintf(stderr, "\r[%s %3.0f%% %s %.2dm %.2ds][%3.0f%% %5.1fMb]",
             pb_string, perc * 100, descr, mins, secs,
-            vcache_get_hitrate(), vcache_get_used());
+            vcache_get_hitrate(cache), vcache_get_used(cache));
 #endif
 
     if (last)
@@ -355,7 +355,7 @@ uint64_t hash_str(char *s, int l)
  * @param b Maximum value
  * @param c Current value
  */
-void log_print(long a, long b, long c)
+void log_print(vcache_t *cache, long a, long b, long c)
 {
     double perc, min, max, in;
     char buf[256];
@@ -386,8 +386,8 @@ void log_print(long a, long b, long c)
 #else
     fprintf(stderr, "[%s] state: %.0f%%, vcache: %.0f%%/%.0f%%, "
             "eta: %dh%.2dm%.2ds\n", buf,
-            perc * 100, vcache_get_used() * 100,
-            vcache_get_hitrate() * 100, hours, mins, secs);
+            perc * 100, vcache_get_used(cache) * 100,
+            vcache_get_hitrate(cache) * 100, hours, mins, secs);
 #endif
 
     fflush(stdout);

@@ -429,82 +429,82 @@ float hmatrix_get(hmatrix_t *m, int c, int r)
     return m->values[idx];
 }
 
-/**
- * Compute similarity measure and fill matrix
- * @param m Matrix object
- * @param s Array of string objects
- * @param measure Similarity measure
- */
-void hmatrix_compute(hmatrix_t *m, hstring_t *s,
-                     double (*measure) (hstring_t, hstring_t))
-{
-    assert(m);
+/*[>**/
+ /** Compute similarity measure and fill matrix*/
+ /** @param m Matrix object*/
+ /** @param s Array of string objects*/
+ /** @param measure Similarity measure*/
+/*<]*/
+/*void hmatrix_compute(hmatrix_t *m, hstring_t *s,*/
+                     /*double (*measure) (hstring_t, hstring_t))*/
+/*{*/
+    /*assert(m);*/
 
-    int cnt = 0, n;
-    double ts, ts1 = time_stamp(), ts2 = ts1;
-    float f;
+    /*int cnt = 0, n;*/
+    /*double ts, ts1 = time_stamp(), ts2 = ts1;*/
+    /*float f;*/
 
-    n = (m->col.end - m->col.start) * (m->row.end - m->row.start);
+    /*n = (m->col.end - m->col.start) * (m->row.end - m->row.start);*/
 
-#ifdef HAVE_OPENMP
-#pragma omp parallel for private(ts)
-#endif
-    for (int k = 0; k < n; k++) {
-        int c = k / (m->row.end - m->row.start) + m->col.start;
-        int r = k % (m->row.end - m->row.start) + m->row.start;
+/*#ifdef HAVE_OPENMP*/
+/*#pragma omp parallel for private(ts)*/
+/*#endif*/
+    /*for (int k = 0; k < n; k++) {*/
+        /*int c = k / (m->row.end - m->row.start) + m->col.start;*/
+        /*int r = k % (m->row.end - m->row.start) + m->row.start;*/
 
-        /* Skip values that have been computed earlier */
-        f = hmatrix_get(m, c, r);
-        if (!isnan(f))
-            continue;
+        /*[>Skip values that have been computed earlier<]*/
+        /*f = hmatrix_get(m, c, r);*/
+        /*if (!isnan(f))*/
+            /*continue;*/
 
-        /* Set value in matrix */
-        f = measure(s[c], s[r]);
-        hmatrix_set(m, c, r, f);
+        /*[>Set value in matrix<]*/
+        /*f = measure(s[c], s[r]);*/
+        /*hmatrix_set(m, c, r, f);*/
 
-        if (verbose || log_line) {
-            /*
-             * Update internal counter. Note that we have slightly more
-             * calculations as expected, since we don't lock the matrix.
-             * Moreover, this update is not thread-safe and the progress
-             * bar might not be correct.
-             */
-            if (cnt < m->calcs)
-                cnt++;
+        /*if (verbose || log_line) {*/
+            /*[>*/
+             /** Update internal counter. Note that we have slightly more*/
+             /** calculations as expected, since we don't lock the matrix.*/
+             /** Moreover, this update is not thread-safe and the progress*/
+             /** bar might not be correct.*/
+/*<]*/
+            /*if (cnt < m->calcs)*/
+                /*cnt++;*/
 
-            /* Continue if less than 100ms have passed */
-            ts = time_stamp();
-            if (ts - ts1 < 0.1)
-                continue;
+            /*[>Continue if less than 100ms have passed<]*/
+            /*ts = time_stamp();*/
+            /*if (ts - ts1 < 0.1)*/
+                /*continue;*/
 
-            /* Lock only if something is displayed */
-#ifdef HAVE_OPENMP
-#pragma omp critical
-#endif
-            {
-                /* Update progress bar every 100ms */
-                if (verbose) {
-                    prog_bar(0, m->calcs, cnt);
-                    ts1 = ts;
-                }
+            /*[>Lock only if something is displayed<]*/
+/*#ifdef HAVE_OPENMP*/
+/*#pragma omp critical*/
+/*#endif*/
+            /*{*/
+                /*[>Update progress bar every 100ms<]*/
+                /*if (verbose) {*/
+                    /*prog_bar(0, m->calcs, cnt);*/
+                    /*ts1 = ts;*/
+                /*}*/
 
-                /* Print log line every minute if enabled */
-                if (log_line && ts - ts2 > 60) {
-                    log_print(0, m->calcs, cnt);
-                    ts2 = ts;
-                }
-            }
-        }
-    }
+                /*[>Print log line every minute if enabled<]*/
+                /*if (log_line && ts - ts2 > 60) {*/
+                    /*log_print(0, m->calcs, cnt);*/
+                    /*ts2 = ts;*/
+                /*}*/
+            /*}*/
+        /*}*/
+    /*}*/
 
-    if (verbose) {
-        prog_bar(0, m->calcs, m->calcs);
-    }
+    /*if (verbose) {*/
+        /*prog_bar(0, m->calcs, m->calcs);*/
+    /*}*/
 
-    if (log_line) {
-        log_print(0, m->calcs, m->calcs);
-    }
-}
+    /*if (log_line) {*/
+        /*log_print(0, m->calcs, m->calcs);*/
+    /*}*/
+/*}*/
 
 
 /**

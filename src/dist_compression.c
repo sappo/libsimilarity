@@ -109,27 +109,27 @@ float dist_compression_compare (measures_t *self, hstring_t *x, hstring_t *y)
     uint64_t xk, yk, xyk, yxk;
 
     xk = hstring_hash1(x);
-    if (!vcache_load(xk, &xl, ID_DIST_COMPRESS)) {
+    if (!vcache_load(self->cache, xk, &xl, ID_DIST_COMPRESS)) {
         xl = compress_str1(self, x);
-        vcache_store(xk, xl, ID_DIST_COMPRESS);
+        vcache_store(self->cache, xk, xl, ID_DIST_COMPRESS);
     }
 
     yk = hstring_hash1(y);
-    if (!vcache_load(yk, &yl, ID_DIST_COMPRESS)) {
+    if (!vcache_load(self->cache, yk, &yl, ID_DIST_COMPRESS)) {
         yl = compress_str1(self, y);
-        vcache_store(yk, yl, ID_DIST_COMPRESS);
+        vcache_store(self->cache, yk, yl, ID_DIST_COMPRESS);
     }
 
     xyk = hstring_hash2(x, y);
-    if (!vcache_load(xyk, &xyl, ID_DIST_COMPRESS)) {
+    if (!vcache_load(self->cache, xyk, &xyl, ID_DIST_COMPRESS)) {
         xyl = compress_str2(self, x, y);
-        vcache_store(xyk, xyl, ID_DIST_COMPRESS);
+        vcache_store(self->cache, xyk, xyl, ID_DIST_COMPRESS);
     }
 
     yxk = hstring_hash2(y, x);
-    if (!vcache_load(yxk, &yxl, ID_DIST_COMPRESS)) {
+    if (!vcache_load(self->cache, yxk, &yxl, ID_DIST_COMPRESS)) {
         yxl = compress_str2(self, y, x);
-        vcache_store(yxk, yxl, ID_DIST_COMPRESS);
+        vcache_store(self->cache, yxk, yxl, ID_DIST_COMPRESS);
     }
 
     /* Symmetric version of distance */

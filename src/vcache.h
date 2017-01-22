@@ -26,13 +26,15 @@ typedef struct
     float val;          /**< Cached similarity value */
 } entry_t;
 
-void vcache_init(config_t *cfg);
-int vcache_load(uint64_t key, float *value, int);
-int vcache_store(uint64_t key, float value, int);
-void vcache_info();
-void vcache_destroy();
-float vcache_get_hitrate();
-float vcache_get_used();
+vcache_t *
+vcache_new (config_t *cfg);
+void
+vcache_destroy (vcache_t **self_p);
+int vcache_load (vcache_t *self, uint64_t key, float *value, int);
+int vcache_store (vcache_t *self, uint64_t key, float value, int);
+void vcache_info (vcache_t *self);
+float vcache_get_hitrate (vcache_t *self);
+float vcache_get_used (vcache_t *self);
 void vcache_test (bool verbose);
 
 #endif

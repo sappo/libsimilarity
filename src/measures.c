@@ -82,9 +82,6 @@ measures_new (const char *name)
     rc = config_check (self->cfg);
     assert (rc != 0);
 
-    /* Init value cache */
-    vcache_init(self->cfg);
-
     measures_config (self, name);
     self->idx = 0;
     self->verbose = 0;
@@ -103,7 +100,7 @@ measures_destroy (measures_t **self_p)
     if (*self_p) {
         measures_t *self = *self_p;
         config_destroy(self->cfg);
-        vcache_destroy();
+        vcache_destroy(&self->cache);
         free (self->cfg);
         free (self->opts);
         free (self);
@@ -157,17 +154,24 @@ measures_config (measures_t *self, const char *name)
     assert (name);
     const char *cfg_str;
 
-    /* Set delimiters */
+    //  Set delimiters
     config_lookup_string(self->cfg, "measures.token_delim", &cfg_str);
     if (strlen(cfg_str) > 0)
         hstring_delim_set(cfg_str);
     else
         hstring_delim_reset();
 
-    /* Enable global cache */
+    //  Enable global cache
     config_lookup_int(self->cfg, "measures.global_cache", &self->global_cache);
 
-    /* Configure */
+    //  Invalidate cache
+    if (self->cache)
+        vcache_destroy (&self->cache);
+
+    //  Setup fresh cache
+    self->cache = vcache_new (self->cfg);
+
+    //  Configure
     self->idx = measures_match(name);
     self->func = &func[self->idx];
     self->func->measure_config(self);
@@ -214,17 +218,17 @@ measures_fprint (FILE *f)
  * @return similarity/dissimilarity value
  */
 float
-measures_compare(measures_t *self, hstring_t *x, hstring_t *y)
+measures_compare (measures_t *self, hstring_t *x, hstring_t *y)
 {
     if (!self->global_cache)
-        return self->func->measure_compare(self, x, y);
+        return self->func->measure_compare (self, x, y);
 
-    uint64_t xyk = hstring_hash2(x, y);
+    uint64_t xyk = hstring_hash2 (x, y);
     float m = 0;
 
-    if (!vcache_load(xyk, &m, ID_COMPARE)) {
+    if (!vcache_load (self->cache, xyk, &m, ID_COMPARE)) {
         m = self->func->measure_compare(self, x, y);
-        vcache_store(xyk, m, ID_COMPARE);
+        vcache_store (self->cache,  xyk, m, ID_COMPARE);
     }
     return m;
 }
@@ -240,7 +244,7 @@ measures_config_set_string (measures_t *self, const char *key, const char *value
     assert (key);
     assert (value);
     config_set_string (self->cfg, key, value);
-    self->func->measure_config (self);
+    measures_config (self, self->func->name);
 }
 
 
@@ -253,7 +257,7 @@ measures_config_set_int (measures_t *self, const char *key, const int value)
     assert (self);
     assert (key);
     config_set_int (self->cfg, key, value);
-    self->func->measure_config (self);
+    measures_config (self, self->func->name);
 }
 
 
@@ -266,7 +270,7 @@ measures_config_set_float (measures_t *self, const char *key, const float value)
     assert (self);
     assert (key);
     config_set_float (self->cfg, key, value);
-    self->func->measure_config (self);
+    measures_config (self, self->func->name);
 }
 
 
@@ -279,7 +283,7 @@ measures_config_set_bool (measures_t *self, const char *key, const bool value)
     assert (self);
     assert (key);
     config_set_bool (self->cfg, key, value);
-    self->func->measure_config (self);
+    measures_config (self, self->func->name);
 }
 
 

@@ -76,15 +76,15 @@ float dist_kernel_compare(measures_t *self, hstring_t *x, hstring_t *y)
     float d = 0;
 
     xk = hstring_hash1(x);
-    if (!vcache_load(xk, &k1, ID_DIST_KERNEL)) {
+    if (!vcache_load(self->cache, xk, &k1, ID_DIST_KERNEL)) {
         k1 = kernel(self, x, x);
-        vcache_store(xk, k1, ID_DIST_KERNEL);
+        vcache_store(self->cache, xk, k1, ID_DIST_KERNEL);
     }
 
     yk = hstring_hash1(y);
-    if (!vcache_load(yk, &k2, ID_DIST_KERNEL)) {
+    if (!vcache_load(self->cache, yk, &k2, ID_DIST_KERNEL)) {
         k2 = kernel(self, y, y);
-        vcache_store(yk, k2, ID_DIST_KERNEL);
+        vcache_store(self->cache, yk, k2, ID_DIST_KERNEL);
     }
 
     /* Not cached here */

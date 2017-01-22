@@ -11,20 +11,19 @@
 
 #include "harry_classes.h"
 
-/* Cache structure */
-static entry_t *cache = NULL;
-static long space = 0;
-static long size = 0;
+struct _vcache_t {
+    /* Cache structure */
+    entry_t *cache;
+    long space;
+    long size;
 
-/* Cache statistics */
-static double hits = 0;
-static double misses = 0;
+    /* Cache statistics */
+    double hits;
+    double misses;
 
-/* Read-write cache for lock */
-static rwlock_t rwlock;
-
-/* Measures */
-static long active_measures = 0;
+    /* Read-write cache for lock */
+    rwlock_t rwlock;
+};
 
 /**
  * @defgroup vcache Value cache
@@ -33,134 +32,150 @@ static long active_measures = 0;
  * @{
  */
 
-/**
- * Init value cache
- */
-void vcache_init(config_t *cfg)
+
+//  --------------------------------------------------------------------------
+//  Create new cache object
+
+vcache_t *
+vcache_new (config_t *cfg)
 {
-    if (active_measures == 0) {
-        cfg_int csize;
-        config_lookup_int(cfg, "measures.cache_size", &csize);
+    assert (cfg);
+    vcache_t *self = (vcache_t *) zmalloc (sizeof (vcache_t));
 
-        /* Initialize cache stats */
-        space = floor((csize * 1024 * 1024) / sizeof(entry_t));
-        size = 0;
-        misses = 0;
-        hits = 0;
+    //  Lookup cache size
+    cfg_int csize;
+    config_lookup_int (cfg, "measures.cache_size", &csize);
 
-        info_msg(1, "Initializing cache with %dMb (%d entries)", csize, space);
+    //  Initialize cache stats
+    self->space = floor ((csize * 1024 * 1024) / sizeof (entry_t));
+    self->size = 0;
+    self->misses = 0;
+    self->hits = 0;
 
-        cache = (entry_t *) zmalloc(space * sizeof(entry_t));
-        if (!cache)
-            error("Failed to allocate value cache");
+    info_msg (1, "Initializing cache with %dMb (%d entries)", csize, self->space);
 
-        /* Initialize lock */
-        rwlock_init(&rwlock);
-    }
-    active_measures++;
+    self->cache = (entry_t *) zmalloc (self->space * sizeof (entry_t));
+    assert (self->cache);
+
+    //  Initialize lock
+    rwlock_init (&self->rwlock);
+
+    return self;
 }
 
-/**
- * Store a similarity value. The value is associated with 64 bit key that
- * can be computed from a string, a sequence of symbols or even a pair
- * of strings. Collisions may occur, but are not likely.
- * @param key Key for similarity value
- * @param value Value to store
- * @param id ID of task
- * @return true on success, false otherwise
- */
-int vcache_store(uint64_t key, float value, int id)
+
+//  --------------------------------------------------------------------------
+//  Destroy the value cache
+
+void
+vcache_destroy (vcache_t **self_p)
+{
+    assert (self_p);
+    info_msg (1, "Clearing cache and freeing memory");
+    if (*self_p) {
+        vcache_t *self = *self_p;
+
+        //  Destroy lock
+        rwlock_destroy(&self->rwlock);
+
+        //  Clear hash table
+        free(self->cache);
+
+        //  Free self
+        free(self);
+    }
+}
+
+
+//  --------------------------------------------------------------------------
+//  Store a similarity value. The value is associated with 64 bit key that
+//  can be computed from a string, a sequence of symbols or even a pair
+//  of strings. Collisions may occur, but are not likely.
+//  @param key Key for similarity value
+//  @param value Value to store
+//  @param id ID of task
+//  @return true on success, false otherwise
+
+int
+vcache_store (vcache_t *self, uint64_t key, float value, int id)
 {
     int idx;
 
-    idx = (key ^ id) % space;
+    idx = (key ^ id) % self->space;
 
-    rwlock_set_wlock(&rwlock);
+    rwlock_set_wlock(&self->rwlock);
 
-    if (cache[idx].key == 0)
-        size++;
+    if (self->cache[idx].key == 0)
+        self->size++;
 
-    cache[idx].key = key;
-    cache[idx].val = value;
-    cache[idx].id = id;
-    rwlock_unset_wlock(&rwlock);
+    self->cache[idx].key = key;
+    self->cache[idx].val = value;
+    self->cache[idx].id = id;
+    rwlock_unset_wlock(&self->rwlock);
 
     return TRUE;
 }
 
-/**
- * Load a similarity value. The value is associated with 64 bit key.
- * @param key Key for similarity value
- * @param value Pointer to space for value
- * @param id ID of task
- * @return true on success, false otherwise
- */
-int vcache_load(uint64_t key, float *value, int id)
+
+//  --------------------------------------------------------------------------
+//  Load a similarity value. The value is associated with 64 bit key.
+//  @param key Key for similarity value
+//  @param value Pointer to space for value
+//  @param id ID of task
+//  @return true on success, false otherwise
+
+int vcache_load(vcache_t *self, uint64_t key, float *value, int id)
 {
     int ret, idx;
 
-    idx = (key ^ id) % space;
-    rwlock_set_rlock(&rwlock);
-    if (cache[idx].key == key && cache[idx].id == id) {
-        *value = cache[idx].val;
+    idx = (key ^ id) % self->space;
+    rwlock_set_rlock(&self->rwlock);
+    if (self->cache[idx].key == key && self->cache[idx].id == id) {
+        *value = self->cache[idx].val;
         ret = TRUE;
-        hits++;
+        self->hits++;
     } else {
         ret = FALSE;
-        misses++;
+        self->misses++;
     }
 
-    rwlock_unset_rlock(&rwlock);
+    rwlock_unset_rlock(&self->rwlock);
     return ret;
 }
 
-/**
- * Display some information about cache usage
- */
-void vcache_info()
+
+//  --------------------------------------------------------------------------
+//  Display some information about cache usage
+
+void vcache_info(vcache_t *self)
 {
-    float used = (size * sizeof(entry_t)) / (1024.0 * 1024.0);
-    float free = (space * sizeof(entry_t)) / (1024.0 * 1024.0);
+    float used = (self->size * sizeof(entry_t)) / (1024.0 * 1024.0);
+    float free = (self->space * sizeof(entry_t)) / (1024.0 * 1024.0);
 
     info_msg(1,
              "Cache stats: %.1fMb used by %d entries, hits %3.0f%%, %.1fMb free.",
-             used, size, 100 * hits / (hits + misses), free);
+             used, self->size, 100 * self->hits / (self->hits + self->misses), free);
 }
 
-/**
- * Get used memory in megabytes
- * @return used memory
- */
-float vcache_get_used()
+
+//  --------------------------------------------------------------------------
+//  Get used memory in megabytes
+//  @return used memory
+
+float vcache_get_used(vcache_t *self)
 {
-    return (size * sizeof(entry_t)) / (1024.0 * 1024.0);
+    return (self->size * sizeof(entry_t)) / (1024.0 * 1024.0);
 }
 
-/**
- * Get hit rate
- * @return hit rate
- */
-float vcache_get_hitrate()
+
+//  --------------------------------------------------------------------------
+//  Get hit rate
+//  @return hit rate
+
+float vcache_get_hitrate(vcache_t *self)
 {
-    const double total = (hits + misses);
-    return (total <= 0 ? 0 : 100 * hits / (hits + misses));
-}
-
-/**
- * Destroy the value cache
- */
-void vcache_destroy()
-{
-    active_measures--;
-    if (active_measures == 0) {
-        info_msg(1, "Clearing cache and freeing memory");
-
-        /* Destroy lock */
-        rwlock_destroy(&rwlock);
-
-        /* Clear hash table */
-        free(cache);
-    }
+    const double total = (self->hits + self->misses);
+    return (total <= 0 ? 0 : 100 * self->hits / (self->hits + self->misses));
 }
 
 

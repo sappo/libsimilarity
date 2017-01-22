@@ -109,6 +109,7 @@ struct _measures_t {
     measures_func_t *func;
     measures_opts_t *opts;
     cfg_int global_cache;
+    vcache_t *cache;
     int idx;
     int verbose;
     int log_line;

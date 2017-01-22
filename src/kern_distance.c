@@ -88,15 +88,15 @@ static float dot(measures_t *self, hstring_t *x, hstring_t *y)
     o = hstring_empty (x->type);
 
     xk = hstring_hash1(x);
-    if (!vcache_load(xk, &d1, ID_KERN_DISTANCE)) {
+    if (!vcache_load(self->cache, xk, &d1, ID_KERN_DISTANCE)) {
         d1 = func[dist].measure_compare(self, x, o);
-        vcache_store(xk, d1, ID_KERN_DISTANCE);
+        vcache_store(self->cache, xk, d1, ID_KERN_DISTANCE);
     }
 
     yk = hstring_hash1(y);
-    if (!vcache_load(yk, &d2, ID_KERN_DISTANCE)) {
+    if (!vcache_load(self->cache, yk, &d2, ID_KERN_DISTANCE)) {
         d2 = func[dist].measure_compare(self, y, o);
-        vcache_store(yk, d2, ID_KERN_DISTANCE);
+        vcache_store(self->cache, yk, d2, ID_KERN_DISTANCE);
     }
 
     /* Not cached here */
